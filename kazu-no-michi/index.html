@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="かずのアプリ">
+<title>かずのアプリ</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:"Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+    background:linear-gradient(160deg,#eafff5,#e6f4ff);color:#234;text-align:center;
+    padding:14px 10px 40px;user-select:none;}
+  h1{font-size:22px;margin:4px 0 10px;color:#1f7a5a;}
+  /* tabs */
+  .tabs{display:flex;gap:8px;justify-content:center;margin-bottom:14px;}
+  .tabs button{font-size:16px;font-weight:800;padding:10px 16px;border-radius:14px;
+    border:2px solid #bcdff0;background:#fff;color:#357;cursor:pointer;}
+  .tabs button.on{background:#2f8fd6;color:#fff;border-color:#2f8fd6;}
+  .view{display:none;} .view.on{display:block;}
+  .rule{display:flex;gap:10px;justify-content:center;margin:2px auto 14px;flex-wrap:wrap;}
+  .rule div{background:#fff;border-radius:14px;padding:7px 13px;font-size:14px;font-weight:700;
+    box-shadow:0 2px 6px rgba(0,0,0,.06);}
+  .rule .small{color:#e5734a;} .rule .big{color:#2f8fd6;}
+  .startpick{margin:8px 0 6px;font-size:14px;font-weight:700;color:#357;}
+  .starts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px;}
+  .starts button{font-size:18px;font-weight:800;padding:7px 13px;border-radius:12px;
+    border:2px solid #bcdff0;background:#fff;color:#2a6;cursor:pointer;}
+  .starts button.on{background:#2f8fd6;color:#fff;border-color:#2f8fd6;}
+  .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .actions button{font-size:19px;font-weight:900;padding:15px 18px;border-radius:18px;border:none;
+    cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);transition:transform .06s;}
+  .actions button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.15);}
+  .back{background:#ffb26b;color:#fff;} .fwd{background:#7cc7f7;color:#fff;}
+  .reset{background:#e7edf2;color:#456;font-size:15px;padding:12px 15px;box-shadow:0 3px 0 rgba(0,0,0,.1);}
+  .msg{margin-top:14px;font-size:18px;font-weight:800;min-height:26px;color:#e5734a;}
+  .answer{margin-top:8px;font-size:23px;font-weight:900;min-height:30px;color:#1f9d55;opacity:0;transition:opacity .3s;}
+  .answer.show{opacity:1;} .cheer{font-size:28px;}
+
+  /* number line */
+  .track-wrap{overflow-x:auto;padding:26px 8px 6px;}
+  .track{position:relative;height:120px;min-width:820px;margin:0 auto;display:flex;align-items:flex-end;justify-content:center;}
+  .line{position:absolute;bottom:32px;left:2%;right:2%;height:5px;border-radius:3px;background:#9fd6c0;}
+  .cell{position:relative;width:40px;text-align:center;z-index:2;}
+  .tick{width:3px;height:15px;background:#9fd6c0;margin:0 auto;}
+  .num{font-size:18px;font-weight:800;margin-top:4px;color:#456;}
+  .cell.hot .num{color:#e5734a;} .cell.target .num{color:#1f9d55;}
+  .cell.target::after{content:"";position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+    width:32px;height:32px;border:3px dashed #1f9d55;border-radius:50%;}
+  #hero{position:absolute;bottom:50px;font-size:36px;transition:left .28s cubic-bezier(.34,1.56,.64,1),bottom .14s ease;z-index:5;transform:translateX(-50%);}
+
+  /* bundles */
+  .rooms{display:flex;gap:14px;justify-content:center;align-items:flex-end;margin:10px auto;flex-wrap:wrap;}
+  .room{background:#fff;border-radius:18px;padding:12px 14px 10px;min-width:150px;box-shadow:0 3px 8px rgba(0,0,0,.07);}
+  .room h3{margin:0 0 8px;font-size:15px;color:#456;}
+  .room .digit{font-size:34px;font-weight:900;margin-top:6px;}
+  .room.tens .digit{color:#2f8fd6;} .room.ones .digit{color:#e5734a;}
+  .rods{display:flex;gap:8px;justify-content:center;align-items:flex-end;min-height:120px;}
+  .rod{display:flex;flex-direction:column-reverse;gap:2px;padding:3px;background:#eaf4fc;border-radius:8px;}
+  .rod span{width:20px;height:9px;background:#2f8fd6;border-radius:2px;}
+  .rod.breaking span{background:#ff5a5a;}
+  .dots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;justify-content:center;min-height:120px;align-content:end;}
+  .dot{width:22px;height:22px;background:#ff9a4d;border-radius:50%;}
+  .bignum{font-size:40px;font-weight:900;color:#1f7a5a;margin:6px 0;}
+</style>
+</head>
+<body>
+  <h1>🐇 かずの アプリ</h1>
+  <div class="tabs">
+    <button id="tabLine" class="on" onclick="showTab('line')">🐇 かずのみち</button>
+    <button id="tabBundle" onclick="showTab('bundle')">🧱 10のかたまり</button>
+  </div>
+
+  <!-- ===== NUMBER LINE ===== -->
+  <div class="view on" id="viewLine">
+    <div class="rule">
+      <div class="small">ちいさい → もどる ←</div>
+      <div class="big">おおきい → すすむ →</div>
+    </div>
+    <div class="track-wrap"><div class="track" id="track"><div class="line"></div><div id="hero">🐇</div></div></div>
+    <div class="startpick">① スタートの かず</div>
+    <div class="starts" id="startsL"></div>
+    <div class="startpick">② ボタンを おそう（5つ うごく）</div>
+    <div class="actions">
+      <button class="back" onclick="lineHop(-1)">5つ ちいさい ←</button>
+      <button class="fwd" onclick="lineHop(1)">5つ おおきい →</button>
+      <button class="reset" onclick="lineReset()">やりなおす</button>
+    </div>
+    <div class="answer" id="ansL"></div>
+  </div>
+
+  <!-- ===== BUNDLES ===== -->
+  <div class="view" id="viewBundle">
+    <div class="rule"><div class="small">バラが なくなったら、10の かたまりを くずすよ 🔨</div></div>
+    <div class="bignum" id="bigNum">27</div>
+    <div class="rooms">
+      <div class="room tens"><h3>十のへや（10のかたまり）</h3><div class="rods" id="rods"></div><div class="digit" id="dTens">2</div></div>
+      <div class="room ones"><h3>一のへや（バラ）</h3><div class="dots" id="dots"></div><div class="digit" id="dOnes">7</div></div>
+    </div>
+    <div class="startpick">① スタートの かず</div>
+    <div class="starts" id="startsB"></div>
+    <div class="startpick">② ボタンを おそう（5つ うごく）</div>
+    <div class="actions">
+      <button class="back" onclick="bundleHop(-1)">5つ ちいさい ←</button>
+      <button class="fwd" onclick="bundleHop(1)">5つ おおきい →</button>
+      <button class="reset" onclick="bundleReset()">やりなおす</button>
+    </div>
+    <div class="msg" id="msgB"></div>
+    <div class="answer" id="ansB"></div>
+  </div>
+
+<script>
+const STARTS=[27,30,32,29,34,36], MIN=20, MAX=40;
+
+/* ---------- tabs ---------- */
+function showTab(t){
+  document.getElementById('viewLine').classList.toggle('on',t==='line');
+  document.getElementById('viewBundle').classList.toggle('on',t==='bundle');
+  document.getElementById('tabLine').classList.toggle('on',t==='line');
+  document.getElementById('tabBundle').classList.toggle('on',t==='bundle');
+  if(t==='line') requestAnimationFrame(()=>placeHero(lineCur,false));
+}
+
+/* ================= NUMBER LINE ================= */
+const track=document.getElementById('track'), hero=document.getElementById('hero');
+const ansL=document.getElementById('ansL'), cellsL={};
+let lineCur=27, lineBusy=false;
+for(let n=MIN;n<=MAX;n++){
+  const c=document.createElement('div'); c.className='cell'; c.dataset.n=n;
+  c.innerHTML='<div class="tick"></div><div class="num">'+n+'</div>';
+  track.appendChild(c); cellsL[n]=c;
+}
+function cellCenter(n){const tr=track.getBoundingClientRect(),cr=cellsL[n].getBoundingClientRect();return (cr.left+cr.width/2)-tr.left;}
+function placeHero(n,jump){hero.style.left=cellCenter(n)+'px';if(jump){hero.style.bottom='70px';setTimeout(()=>hero.style.bottom='50px',140);}}
+function hlL(n){Object.values(cellsL).forEach(c=>c.classList.remove('hot','target'));if(cellsL[n])cellsL[n].classList.add('hot');}
+function lineSet(n){lineCur=n;lineBusy=false;ansL.classList.remove('show');ansL.innerHTML='';hlL(n);
+  document.querySelectorAll('#startsL button').forEach(b=>b.classList.toggle('on',+b.dataset.n===n));
+  requestAnimationFrame(()=>placeHero(n,false));}
+function lineReset(){lineSet(lineCur);}
+const scL=document.getElementById('startsL');
+STARTS.forEach(n=>{const b=document.createElement('button');b.textContent=n;b.dataset.n=n;b.onclick=()=>lineSet(n);scL.appendChild(b);});
+function lineHop(dir){
+  if(lineBusy)return;
+  const target=lineCur+dir*5;
+  if(target<MIN||target>MAX){ansL.innerHTML='みちの そとだよ!';ansL.classList.add('show');setTimeout(()=>ansL.classList.remove('show'),1200);return;}
+  lineBusy=true;ansL.classList.remove('show');Object.values(cellsL).forEach(c=>c.classList.remove('target'));
+  let step=0,pos=lineCur;
+  const iv=setInterval(()=>{step++;pos+=dir;placeHero(pos,true);hlL(pos);
+    if(step===5){clearInterval(iv);lineCur=pos;cellsL[pos].classList.add('target');
+      const w=dir<0?'5つ ちいさい':'5つ おおきい';
+      setTimeout(()=>{ansL.innerHTML='<span class="cheer">🎉</span> こたえは <b>'+pos+'</b>（'+w+'）';ansL.classList.add('show');lineBusy=false;},300);}
+  },340);
+}
+
+/* ================= BUNDLES ================= */
+const rodsEl=document.getElementById('rods'), dotsEl=document.getElementById('dots');
+const dTens=document.getElementById('dTens'), dOnes=document.getElementById('dOnes'), bigNum=document.getElementById('bigNum');
+const msgB=document.getElementById('msgB'), ansB=document.getElementById('ansB');
+let tens=2, ones=7, bundleBusy=false, bundleStart=27;
+function bnum(){return tens*10+ones;}
+function renderB(breaking){
+  rodsEl.innerHTML=''; dotsEl.innerHTML='';
+  for(let i=0;i<tens;i++){const r=document.createElement('div');r.className='rod'+(breaking&&i===tens-1?' breaking':'');
+    r.innerHTML='<span></span>'.repeat(10);rodsEl.appendChild(r);}
+  for(let i=0;i<ones;i++){const d=document.createElement('div');d.className='dot';dotsEl.appendChild(d);}
+  dTens.textContent=tens; dOnes.textContent=ones; bigNum.textContent=bnum();
+}
+function bundleSet(n){tens=Math.floor(n/10);ones=n%10;bundleStart=n;bundleBusy=false;
+  msgB.textContent='';ansB.classList.remove('show');ansB.innerHTML='';renderB(false);
+  document.querySelectorAll('#startsB button').forEach(b=>b.classList.toggle('on',+b.dataset.n===n));}
+function bundleReset(){bundleSet(bundleStart);}
+const scB=document.getElementById('startsB');
+STARTS.forEach(n=>{const b=document.createElement('button');b.textContent=n;b.dataset.n=n;b.onclick=()=>bundleSet(n);scB.appendChild(b);});
+function bundleFinish(dir){
+  const w=dir<0?'5つ ちいさい':'5つ おおきい';
+  ansB.innerHTML='<span class="cheer">🎉</span> こたえは <b>'+bnum()+'</b>（'+w+'）';
+  ansB.classList.add('show'); bundleBusy=false;
+}
+function bundleHop(dir){
+  if(bundleBusy)return;
+  const target=bnum()+dir*5;
+  if(target<0||target>MAX){msgB.textContent=dir<0?'これより 小さく できないよ':'40より 大きく いかないよ';return;}
+  bundleBusy=true; ansB.classList.remove('show');
+  let done=0;
+  const iv=setInterval(()=>{
+    if(done>=5){clearInterval(iv);msgB.textContent='';bundleFinish(dir);return;}
+    if(dir<0){ // ちいさい：バラを1こ とる
+      if(ones===0){ tens--; ones=10; renderB(true); msgB.textContent='🔨 10の かたまりを くずして、バラ 10こ!'; return; }
+      ones--; done++; renderB(false); msgB.textContent='バラを 1こ とる（'+done+'/5）';
+    }else{ // おおきい：バラを1こ ふやす
+      if(ones===10){ ones=0; tens++; renderB(false); msgB.textContent='✨ バラが 10こ! 10の かたまりに まとめる!'; return; }
+      ones++; done++; renderB(false); msgB.textContent='バラを 1こ ふやす（'+done+'/5）';
+    }
+  },620);
+}
+
+/* init */
+lineSet(27); bundleSet(27);
+window.addEventListener('resize',()=>placeHero(lineCur,false));
+</script>
+</body>
+</html>

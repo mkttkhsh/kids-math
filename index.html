@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="さんすうあそび">
+<title>さんすう あそび</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:"Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;color:#234;
+    background:linear-gradient(160deg,#eafff5,#e6f4ff);min-height:100vh;
+    text-align:center;padding:34px 16px 60px;user-select:none;}
+  h1{font-size:28px;color:#1f7a5a;margin:0 0 4px;}
+  .lead{color:#4a6;font-size:15px;margin:0 0 28px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;max-width:760px;margin:0 auto;}
+  a.card{display:block;text-decoration:none;background:#fff;border-radius:22px;padding:26px 20px;
+    box-shadow:0 4px 14px rgba(0,0,0,.08);transition:transform .1s, box-shadow .1s;color:#234;}
+  a.card:active{transform:translateY(3px);box-shadow:0 2px 6px rgba(0,0,0,.1);}
+  .card .emoji{font-size:52px;line-height:1;}
+  .card .title{font-size:19px;font-weight:900;margin:12px 0 4px;color:#1f7a5a;}
+  .card .desc{font-size:13px;color:#678;}
+  .foot{margin-top:34px;font-size:12px;color:#9ab;}
+</style>
+</head>
+<body>
+  <h1>🧮 さんすう あそび</h1>
+  <p class="lead">すきな あそびを えらんでね</p>
+
+  <div class="grid">
+    <!-- ▼▼▼ アプリを増やすときは、このブロックをコピーして folder 名とタイトルを変えるだけ ▼▼▼ -->
+    <a class="card" href="./kazu-no-michi/">
+      <div class="emoji">🐇</div>
+      <div class="title">かずの みち</div>
+      <div class="desc">数直線 ＋ 10のかたまり（くらい）</div>
+    </a>
+    <!-- ▲▲▲ ここまでが1枚のカード ▲▲▲ -->
+
+    <!-- 例：新しいアプリを足すとき
+    <a class="card" href="./tokei/">
+      <div class="emoji">🕐</div>
+      <div class="title">とけい あそび</div>
+      <div class="desc">なんじ かな？</div>
+    </a>
+    -->
+  </div>
+
+  <p class="foot">© さんすうあそび</p>
+</body>
+</html>
