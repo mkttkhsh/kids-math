@@ -9,64 +9,108 @@
 <title>かずのアプリ</title>
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  body{margin:0;font-family:"Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
-    background:linear-gradient(160deg,#eafff5,#e6f4ff);color:#234;text-align:center;
-    padding:14px 10px 40px;user-select:none;}
-  h1{font-size:22px;margin:4px 0 10px;color:#1f7a5a;}
+  body{margin:0;font-family:"Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;color:#234;
+    background:linear-gradient(160deg,#eafff5,#e6f4ff);text-align:center;padding:12px 10px 40px;user-select:none;}
+  h1{font-size:22px;margin:2px 0 10px;color:#1f7a5a;}
+
+  /* settings */
+  .settings{background:#ffffffcc;border:1px solid #d6e7e0;border-radius:16px;padding:10px 12px;max-width:640px;margin:0 auto 14px;}
+  .srow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:center;padding:5px 0;}
+  .srow+.srow{border-top:1px dashed #e0ebe6;}
+  .slabel{font-size:13px;font-weight:800;color:#457;flex:0 0 auto;min-width:118px;text-align:right;}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;}
+  .chips button{font-size:14px;font-weight:800;padding:6px 11px;border-radius:11px;border:2px solid #cfe4f2;
+    background:#fff;color:#367;cursor:pointer;}
+  .chips button.on{background:#2f8fd6;color:#fff;border-color:#2f8fd6;}
+  .custom{font-size:13px;color:#567;display:flex;align-items:center;gap:4px;}
+  .custom input{width:52px;font-size:15px;padding:4px 6px;border:2px solid #cfe4f2;border-radius:8px;text-align:center;}
+  .custom button{font-size:13px;font-weight:800;padding:5px 10px;border-radius:9px;border:none;background:#5bb98c;color:#fff;cursor:pointer;}
+  .stepper{display:flex;align-items:center;gap:8px;}
+  .stepper button{width:38px;height:38px;border-radius:50%;border:none;background:#ffb26b;color:#fff;font-size:22px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.12);}
+  .stepper button:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.12);}
+  .stepper input{width:64px;font-size:22px;font-weight:900;text-align:center;border:2px solid #ffd9b8;border-radius:10px;padding:4px;color:#c8631f;}
+
   /* tabs */
-  .tabs{display:flex;gap:8px;justify-content:center;margin-bottom:14px;}
-  .tabs button{font-size:16px;font-weight:800;padding:10px 16px;border-radius:14px;
-    border:2px solid #bcdff0;background:#fff;color:#357;cursor:pointer;}
+  .tabs{display:flex;gap:8px;justify-content:center;margin-bottom:12px;}
+  .tabs button{font-size:16px;font-weight:800;padding:9px 16px;border-radius:14px;border:2px solid #bcdff0;background:#fff;color:#357;cursor:pointer;}
   .tabs button.on{background:#2f8fd6;color:#fff;border-color:#2f8fd6;}
   .view{display:none;} .view.on{display:block;}
-  .rule{display:flex;gap:10px;justify-content:center;margin:2px auto 14px;flex-wrap:wrap;}
-  .rule div{background:#fff;border-radius:14px;padding:7px 13px;font-size:14px;font-weight:700;
-    box-shadow:0 2px 6px rgba(0,0,0,.06);}
+  .rule{display:flex;gap:10px;justify-content:center;margin:2px auto 12px;flex-wrap:wrap;}
+  .rule div{background:#fff;border-radius:14px;padding:6px 12px;font-size:13px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.06);}
   .rule .small{color:#e5734a;} .rule .big{color:#2f8fd6;}
-  .startpick{margin:8px 0 6px;font-size:14px;font-weight:700;color:#357;}
-  .starts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px;}
-  .starts button{font-size:18px;font-weight:800;padding:7px 13px;border-radius:12px;
-    border:2px solid #bcdff0;background:#fff;color:#2a6;cursor:pointer;}
-  .starts button.on{background:#2f8fd6;color:#fff;border-color:#2f8fd6;}
-  .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
-  .actions button{font-size:19px;font-weight:900;padding:15px 18px;border-radius:18px;border:none;
-    cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);transition:transform .06s;}
+
+  .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
+  .actions button{font-size:18px;font-weight:900;padding:15px 16px;border-radius:18px;border:none;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);transition:transform .06s;}
   .actions button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.15);}
   .back{background:#ffb26b;color:#fff;} .fwd{background:#7cc7f7;color:#fff;}
-  .reset{background:#e7edf2;color:#456;font-size:15px;padding:12px 15px;box-shadow:0 3px 0 rgba(0,0,0,.1);}
-  .msg{margin-top:14px;font-size:18px;font-weight:800;min-height:26px;color:#e5734a;}
-  .answer{margin-top:8px;font-size:23px;font-weight:900;min-height:30px;color:#1f9d55;opacity:0;transition:opacity .3s;}
-  .answer.show{opacity:1;} .cheer{font-size:28px;}
+  .reset{background:#e7edf2;color:#456;font-size:15px;padding:12px 14px;box-shadow:0 3px 0 rgba(0,0,0,.1);}
+  .msg{margin-top:12px;font-size:17px;font-weight:800;min-height:24px;color:#e5734a;}
+  .answer{margin-top:6px;font-size:22px;font-weight:900;min-height:28px;color:#1f9d55;opacity:0;transition:opacity .3s;}
+  .answer.show{opacity:1;} .cheer{font-size:26px;}
 
   /* number line */
   .track-wrap{overflow-x:auto;padding:26px 8px 6px;}
-  .track{position:relative;height:120px;min-width:820px;margin:0 auto;display:flex;align-items:flex-end;justify-content:center;}
-  .line{position:absolute;bottom:32px;left:2%;right:2%;height:5px;border-radius:3px;background:#9fd6c0;}
-  .cell{position:relative;width:40px;text-align:center;z-index:2;}
+  .track{position:relative;height:118px;margin:0 auto;display:flex;align-items:flex-end;justify-content:flex-start;width:max-content;}
+  .line{position:absolute;bottom:32px;left:20px;right:20px;height:5px;border-radius:3px;background:#9fd6c0;}
+  .cell{position:relative;width:40px;text-align:center;z-index:2;cursor:pointer;}
   .tick{width:3px;height:15px;background:#9fd6c0;margin:0 auto;}
-  .num{font-size:18px;font-weight:800;margin-top:4px;color:#456;}
+  .num{font-size:17px;font-weight:800;margin-top:4px;color:#456;}
   .cell.hot .num{color:#e5734a;} .cell.target .num{color:#1f9d55;}
-  .cell.target::after{content:"";position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
-    width:32px;height:32px;border:3px dashed #1f9d55;border-radius:50%;}
-  #hero{position:absolute;bottom:50px;font-size:36px;transition:left .28s cubic-bezier(.34,1.56,.64,1),bottom .14s ease;z-index:5;transform:translateX(-50%);}
+  .cell.target::after{content:"";position:absolute;bottom:24px;left:50%;transform:translateX(-50%);width:32px;height:32px;border:3px dashed #1f9d55;border-radius:50%;}
+  #hero{position:absolute;bottom:50px;font-size:34px;transition:left .26s cubic-bezier(.34,1.56,.64,1),bottom .13s ease;z-index:5;transform:translateX(-50%);}
 
   /* bundles */
-  .rooms{display:flex;gap:14px;justify-content:center;align-items:flex-end;margin:10px auto;flex-wrap:wrap;}
-  .room{background:#fff;border-radius:18px;padding:12px 14px 10px;min-width:150px;box-shadow:0 3px 8px rgba(0,0,0,.07);}
-  .room h3{margin:0 0 8px;font-size:15px;color:#456;}
-  .room .digit{font-size:34px;font-weight:900;margin-top:6px;}
+  .rooms{display:flex;gap:14px;justify-content:center;align-items:flex-end;margin:8px auto;flex-wrap:wrap;}
+  .room{background:#fff;border-radius:18px;padding:10px 14px 8px;min-width:150px;box-shadow:0 3px 8px rgba(0,0,0,.07);}
+  .room h3{margin:0 0 6px;font-size:14px;color:#456;}
+  .room .digit{font-size:32px;font-weight:900;margin-top:4px;}
   .room.tens .digit{color:#2f8fd6;} .room.ones .digit{color:#e5734a;}
-  .rods{display:flex;gap:8px;justify-content:center;align-items:flex-end;min-height:120px;}
+  .rods{display:flex;gap:6px;justify-content:center;align-items:flex-end;min-height:116px;flex-wrap:wrap;max-width:280px;}
   .rod{display:flex;flex-direction:column-reverse;gap:2px;padding:3px;background:#eaf4fc;border-radius:8px;}
-  .rod span{width:20px;height:9px;background:#2f8fd6;border-radius:2px;}
+  .rod span{width:18px;height:8px;background:#2f8fd6;border-radius:2px;}
   .rod.breaking span{background:#ff5a5a;}
-  .dots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;justify-content:center;min-height:120px;align-content:end;}
-  .dot{width:22px;height:22px;background:#ff9a4d;border-radius:50%;}
-  .bignum{font-size:40px;font-weight:900;color:#1f7a5a;margin:6px 0;}
+  .dots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;min-height:116px;align-content:end;}
+  .dot{width:20px;height:20px;background:#ff9a4d;border-radius:50%;}
+  .bignum{font-size:38px;font-weight:900;color:#1f7a5a;margin:4px 0;}
 </style>
 </head>
 <body>
   <h1>🐇 かずの アプリ</h1>
+
+  <!-- ===== SETTINGS ===== -->
+  <div class="settings">
+    <div class="srow">
+      <span class="slabel">数の はんい</span>
+      <div class="chips" id="rangeChips">
+        <button data-min="0" data-max="10">0–10</button>
+        <button data-min="0" data-max="20">0–20</button>
+        <button data-min="0" data-max="30">0–30</button>
+        <button data-min="20" data-max="40">20–40</button>
+        <button data-min="0" data-max="100">0–100</button>
+      </div>
+      <span class="custom">じゆう
+        <input id="cMin" type="number" inputmode="numeric">〜<input id="cMax" type="number" inputmode="numeric">
+        <button id="cApply">OK</button>
+      </span>
+    </div>
+    <div class="srow">
+      <span class="slabel">ふえる / へる 数（±）</span>
+      <div class="chips" id="stepChips">
+        <button data-s="1">1</button><button data-s="2">2</button><button data-s="3">3</button>
+        <button data-s="4">4</button><button data-s="5">5</button><button data-s="10">10</button>
+      </div>
+      <span class="custom">じゆう <input id="cStep" type="number" inputmode="numeric"><button id="sApply">OK</button></span>
+    </div>
+    <div class="srow">
+      <span class="slabel">スタートの 数</span>
+      <div class="stepper">
+        <button id="stMinus">−</button>
+        <input id="startInput" type="number" inputmode="numeric">
+        <button id="stPlus">＋</button>
+      </div>
+    </div>
+  </div>
+
   <div class="tabs">
     <button id="tabLine" class="on" onclick="showTab('line')">🐇 かずのみち</button>
     <button id="tabBundle" onclick="showTab('bundle')">🧱 10のかたまり</button>
@@ -74,17 +118,11 @@
 
   <!-- ===== NUMBER LINE ===== -->
   <div class="view on" id="viewLine">
-    <div class="rule">
-      <div class="small">ちいさい → もどる ←</div>
-      <div class="big">おおきい → すすむ →</div>
-    </div>
+    <div class="rule"><div class="small">ちいさい → もどる ←</div><div class="big">おおきい → すすむ →</div></div>
     <div class="track-wrap"><div class="track" id="track"><div class="line"></div><div id="hero">🐇</div></div></div>
-    <div class="startpick">① スタートの かず</div>
-    <div class="starts" id="startsL"></div>
-    <div class="startpick">② ボタンを おそう（5つ うごく）</div>
     <div class="actions">
-      <button class="back" onclick="lineHop(-1)">5つ ちいさい ←</button>
-      <button class="fwd" onclick="lineHop(1)">5つ おおきい →</button>
+      <button class="back" id="lineBack" onclick="lineHop(-1)">5つ ちいさい ←</button>
+      <button class="fwd" id="lineFwd" onclick="lineHop(1)">5つ おおきい →</button>
       <button class="reset" onclick="lineReset()">やりなおす</button>
     </div>
     <div class="answer" id="ansL"></div>
@@ -98,12 +136,9 @@
       <div class="room tens"><h3>十のへや（10のかたまり）</h3><div class="rods" id="rods"></div><div class="digit" id="dTens">2</div></div>
       <div class="room ones"><h3>一のへや（バラ）</h3><div class="dots" id="dots"></div><div class="digit" id="dOnes">7</div></div>
     </div>
-    <div class="startpick">① スタートの かず</div>
-    <div class="starts" id="startsB"></div>
-    <div class="startpick">② ボタンを おそう（5つ うごく）</div>
     <div class="actions">
-      <button class="back" onclick="bundleHop(-1)">5つ ちいさい ←</button>
-      <button class="fwd" onclick="bundleHop(1)">5つ おおきい →</button>
+      <button class="back" id="bundleBack" onclick="bundleHop(-1)">5つ ちいさい ←</button>
+      <button class="fwd" id="bundleFwd" onclick="bundleHop(1)">5つ おおきい →</button>
       <button class="reset" onclick="bundleReset()">やりなおす</button>
     </div>
     <div class="msg" id="msgB"></div>
@@ -111,93 +146,129 @@
   </div>
 
 <script>
-const STARTS=[27,30,32,29,34,36], MIN=20, MAX=40;
+/* ===== shared state ===== */
+let rMin=20, rMax=40, step=5, start=27;
 
-/* ---------- tabs ---------- */
+/* ===== helpers ===== */
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+function updateLabels(){
+  const bt=step+'つ ちいさい ←', ft=step+'つ おおきい →';
+  lineBack.textContent=bt; lineFwd.textContent=ft;
+  bundleBack.textContent=bt; bundleFwd.textContent=ft;
+}
+function setActiveChips(){
+  document.querySelectorAll('#rangeChips button').forEach(b=>b.classList.toggle('on',+b.dataset.min===rMin&&+b.dataset.max===rMax));
+  document.querySelectorAll('#stepChips button').forEach(b=>b.classList.toggle('on',+b.dataset.s===step));
+}
+
+/* ===== tabs ===== */
 function showTab(t){
-  document.getElementById('viewLine').classList.toggle('on',t==='line');
-  document.getElementById('viewBundle').classList.toggle('on',t==='bundle');
-  document.getElementById('tabLine').classList.toggle('on',t==='line');
-  document.getElementById('tabBundle').classList.toggle('on',t==='bundle');
-  if(t==='line') requestAnimationFrame(()=>placeHero(lineCur,false));
+  viewLine.classList.toggle('on',t==='line'); viewBundle.classList.toggle('on',t==='bundle');
+  tabLine.classList.toggle('on',t==='line'); tabBundle.classList.toggle('on',t==='bundle');
+  if(t==='line') requestAnimationFrame(()=>placeHero(start,false));
 }
 
 /* ================= NUMBER LINE ================= */
-const track=document.getElementById('track'), hero=document.getElementById('hero');
-const ansL=document.getElementById('ansL'), cellsL={};
-let lineCur=27, lineBusy=false;
-for(let n=MIN;n<=MAX;n++){
-  const c=document.createElement('div'); c.className='cell'; c.dataset.n=n;
-  c.innerHTML='<div class="tick"></div><div class="num">'+n+'</div>';
-  track.appendChild(c); cellsL[n]=c;
+const track=document.getElementById('track'), hero=document.getElementById('hero'), ansL=document.getElementById('ansL');
+let cellsL={}, lineBusy=false;
+function buildLine(){
+  [...track.querySelectorAll('.cell')].forEach(c=>c.remove());
+  cellsL={};
+  for(let n=rMin;n<=rMax;n++){
+    const c=document.createElement('div'); c.className='cell'; c.dataset.n=n;
+    c.innerHTML='<div class="tick"></div><div class="num">'+n+'</div>';
+    c.onclick=()=>setStart(n);
+    track.appendChild(c); cellsL[n]=c;
+  }
 }
 function cellCenter(n){const tr=track.getBoundingClientRect(),cr=cellsL[n].getBoundingClientRect();return (cr.left+cr.width/2)-tr.left;}
-function placeHero(n,jump){hero.style.left=cellCenter(n)+'px';if(jump){hero.style.bottom='70px';setTimeout(()=>hero.style.bottom='50px',140);}}
+function placeHero(n,jump){if(!cellsL[n])return;hero.style.left=cellCenter(n)+'px';if(jump){hero.style.bottom='68px';setTimeout(()=>hero.style.bottom='50px',130);}}
 function hlL(n){Object.values(cellsL).forEach(c=>c.classList.remove('hot','target'));if(cellsL[n])cellsL[n].classList.add('hot');}
-function lineSet(n){lineCur=n;lineBusy=false;ansL.classList.remove('show');ansL.innerHTML='';hlL(n);
-  document.querySelectorAll('#startsL button').forEach(b=>b.classList.toggle('on',+b.dataset.n===n));
-  requestAnimationFrame(()=>placeHero(n,false));}
-function lineReset(){lineSet(lineCur);}
-const scL=document.getElementById('startsL');
-STARTS.forEach(n=>{const b=document.createElement('button');b.textContent=n;b.dataset.n=n;b.onclick=()=>lineSet(n);scL.appendChild(b);});
+function lineReset(){lineBusy=false;ansL.classList.remove('show');ansL.innerHTML='';hlL(start);requestAnimationFrame(()=>placeHero(start,false));}
 function lineHop(dir){
   if(lineBusy)return;
-  const target=lineCur+dir*5;
-  if(target<MIN||target>MAX){ansL.innerHTML='みちの そとだよ!';ansL.classList.add('show');setTimeout(()=>ansL.classList.remove('show'),1200);return;}
+  const target=start+dir*step;
+  if(target<rMin||target>rMax){flash(ansL,'みちの そとだよ!');return;}
   lineBusy=true;ansL.classList.remove('show');Object.values(cellsL).forEach(c=>c.classList.remove('target'));
-  let step=0,pos=lineCur;
-  const iv=setInterval(()=>{step++;pos+=dir;placeHero(pos,true);hlL(pos);
-    if(step===5){clearInterval(iv);lineCur=pos;cellsL[pos].classList.add('target');
-      const w=dir<0?'5つ ちいさい':'5つ おおきい';
-      setTimeout(()=>{ansL.innerHTML='<span class="cheer">🎉</span> こたえは <b>'+pos+'</b>（'+w+'）';ansL.classList.add('show');lineBusy=false;},300);}
-  },340);
+  let s=0,pos=start;
+  const iv=setInterval(()=>{s++;pos+=dir;placeHero(pos,true);hlL(pos);
+    if(s===step){clearInterval(iv);start=pos;syncStartInput();cellsL[pos].classList.add('target');
+      const w=step+(dir<0?'つ ちいさい':'つ おおきい');
+      setTimeout(()=>{ansL.innerHTML='<span class="cheer">🎉</span> こたえは <b>'+pos+'</b>（'+w+'）';ansL.classList.add('show');lineBusy=false;},280);}
+  },320);
 }
+function flash(el,m){el.innerHTML=m;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1200);}
 
 /* ================= BUNDLES ================= */
-const rodsEl=document.getElementById('rods'), dotsEl=document.getElementById('dots');
-const dTens=document.getElementById('dTens'), dOnes=document.getElementById('dOnes'), bigNum=document.getElementById('bigNum');
-const msgB=document.getElementById('msgB'), ansB=document.getElementById('ansB');
-let tens=2, ones=7, bundleBusy=false, bundleStart=27;
-function bnum(){return tens*10+ones;}
+const rodsEl=document.getElementById('rods'),dotsEl=document.getElementById('dots');
+const dTens=document.getElementById('dTens'),dOnes=document.getElementById('dOnes'),bigNum=document.getElementById('bigNum');
+const msgB=document.getElementById('msgB'),ansB=document.getElementById('ansB');
+let tens=2,ones=7,bundleBusy=false;
+const bnum=()=>tens*10+ones;
 function renderB(breaking){
-  rodsEl.innerHTML=''; dotsEl.innerHTML='';
-  for(let i=0;i<tens;i++){const r=document.createElement('div');r.className='rod'+(breaking&&i===tens-1?' breaking':'');
-    r.innerHTML='<span></span>'.repeat(10);rodsEl.appendChild(r);}
+  rodsEl.innerHTML='';dotsEl.innerHTML='';
+  for(let i=0;i<tens;i++){const r=document.createElement('div');r.className='rod'+(breaking&&i===tens-1?' breaking':'');r.innerHTML='<span></span>'.repeat(10);rodsEl.appendChild(r);}
   for(let i=0;i<ones;i++){const d=document.createElement('div');d.className='dot';dotsEl.appendChild(d);}
-  dTens.textContent=tens; dOnes.textContent=ones; bigNum.textContent=bnum();
+  dTens.textContent=tens;dOnes.textContent=ones;bigNum.textContent=bnum();
 }
-function bundleSet(n){tens=Math.floor(n/10);ones=n%10;bundleStart=n;bundleBusy=false;
-  msgB.textContent='';ansB.classList.remove('show');ansB.innerHTML='';renderB(false);
-  document.querySelectorAll('#startsB button').forEach(b=>b.classList.toggle('on',+b.dataset.n===n));}
-function bundleReset(){bundleSet(bundleStart);}
-const scB=document.getElementById('startsB');
-STARTS.forEach(n=>{const b=document.createElement('button');b.textContent=n;b.dataset.n=n;b.onclick=()=>bundleSet(n);scB.appendChild(b);});
-function bundleFinish(dir){
-  const w=dir<0?'5つ ちいさい':'5つ おおきい';
-  ansB.innerHTML='<span class="cheer">🎉</span> こたえは <b>'+bnum()+'</b>（'+w+'）';
-  ansB.classList.add('show'); bundleBusy=false;
-}
+function bundleSyncFromStart(){tens=Math.floor(start/10);ones=start%10;bundleBusy=false;msgB.textContent='';ansB.classList.remove('show');ansB.innerHTML='';renderB(false);}
+function bundleReset(){bundleSyncFromStart();}
 function bundleHop(dir){
   if(bundleBusy)return;
-  const target=bnum()+dir*5;
-  if(target<0||target>MAX){msgB.textContent=dir<0?'これより 小さく できないよ':'40より 大きく いかないよ';return;}
-  bundleBusy=true; ansB.classList.remove('show');
+  const target=bnum()+dir*step;
+  if(target<rMin||target<0){msgB.textContent='これより 小さく できないよ';return;}
+  if(target>rMax){msgB.textContent=rMax+'より 大きく いかないよ';return;}
+  bundleBusy=true;ansB.classList.remove('show');
   let done=0;
   const iv=setInterval(()=>{
-    if(done>=5){clearInterval(iv);msgB.textContent='';bundleFinish(dir);return;}
-    if(dir<0){ // ちいさい：バラを1こ とる
-      if(ones===0){ tens--; ones=10; renderB(true); msgB.textContent='🔨 10の かたまりを くずして、バラ 10こ!'; return; }
-      ones--; done++; renderB(false); msgB.textContent='バラを 1こ とる（'+done+'/5）';
-    }else{ // おおきい：バラを1こ ふやす
-      if(ones===10){ ones=0; tens++; renderB(false); msgB.textContent='✨ バラが 10こ! 10の かたまりに まとめる!'; return; }
-      ones++; done++; renderB(false); msgB.textContent='バラを 1こ ふやす（'+done+'/5）';
+    if(done>=step){clearInterval(iv);msgB.textContent='';start=bnum();syncStartInput();
+      const w=step+(dir<0?'つ ちいさい':'つ おおきい');
+      ansB.innerHTML='<span class="cheer">🎉</span> こたえは <b>'+bnum()+'</b>（'+w+'）';ansB.classList.add('show');bundleBusy=false;return;}
+    if(dir<0){
+      if(ones===0){tens--;ones=10;renderB(true);msgB.textContent='🔨 10の かたまりを くずして、バラ 10こ!';return;}
+      ones--;done++;renderB(false);msgB.textContent='バラを 1こ とる（'+done+'/'+step+'）';
+    }else{
+      if(ones===10){ones=0;tens++;renderB(false);msgB.textContent='✨ バラが 10こ! 10の かたまりに!';return;}
+      ones++;done++;renderB(false);msgB.textContent='バラを 1こ ふやす（'+done+'/'+step+'）';
     }
-  },620);
+  },560);
 }
 
-/* init */
-lineSet(27); bundleSet(27);
-window.addEventListener('resize',()=>placeHero(lineCur,false));
+/* ================= settings wiring ================= */
+const startInput=document.getElementById('startInput');
+function syncStartInput(){startInput.value=start;}
+function setStart(n){
+  start=clamp(Math.round(n||0),rMin,rMax); syncStartInput();
+  lineReset(); bundleSyncFromStart();
+}
+function applyRange(mn,mx){
+  mn=Math.round(mn); mx=Math.round(mx);
+  if(isNaN(mn)||isNaN(mx)||mx<=mn){return;}
+  mn=Math.max(0,mn); mx=Math.min(200,mx);
+  rMin=mn; rMax=mx;
+  document.getElementById('cMin').value=mn; document.getElementById('cMax').value=mx;
+  buildLine();
+  setActiveChips();
+  setStart(clamp(start,rMin,rMax));
+}
+function applyStep(s){
+  s=Math.round(s); if(isNaN(s)||s<1)return; s=Math.min(s,Math.max(1,rMax-rMin));
+  step=s; document.getElementById('cStep').value=s; updateLabels(); setActiveChips();
+  ansL.classList.remove('show'); ansB.classList.remove('show'); msgB.textContent='';
+}
+
+document.querySelectorAll('#rangeChips button').forEach(b=>b.onclick=()=>applyRange(+b.dataset.min,+b.dataset.max));
+document.querySelectorAll('#stepChips button').forEach(b=>b.onclick=()=>applyStep(+b.dataset.s));
+document.getElementById('cApply').onclick=()=>applyRange(+document.getElementById('cMin').value,+document.getElementById('cMax').value);
+document.getElementById('sApply').onclick=()=>applyStep(+document.getElementById('cStep').value);
+document.getElementById('stMinus').onclick=()=>setStart(start-1);
+document.getElementById('stPlus').onclick=()=>setStart(start+1);
+startInput.onchange=()=>setStart(+startInput.value);
+
+/* ===== init ===== */
+document.getElementById('cStep').value=step;
+buildLine(); updateLabels(); setActiveChips(); setStart(start);
+window.addEventListener('resize',()=>placeHero(start,false));
 </script>
 </body>
 </html>
