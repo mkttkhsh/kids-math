@@ -123,11 +123,11 @@ function render(){
 
   if(step===0){
     $('prompt').textContent='まず お話を よもう。じゅんびは いい？';
-    add(btns,'go','① すう を さがす →',()=>{step=1;render();});
+    add(btns,'go','① かず を さがす →',()=>{step=1;render();});
   }
   else if(step===1){
     $('prompt').textContent='① 数字（すうじ）は どれ？ みつけたよ！';
-    $('found').textContent='みつけた すう ＝ '+p.a+' と '+p.b;
+    $('found').textContent='みつけた かず ＝ '+p.a+' と '+p.b;
     add(btns,'go','② ことば を さがす →',()=>{step=2;render();});
   }
   else if(step===2){
