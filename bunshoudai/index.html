@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="おはなしさんすう">
+<title>おはなし さんすう</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:"Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;color:#234;
+    background:linear-gradient(160deg,#fff4ea,#e9f3ff);min-height:100vh;text-align:center;padding:16px 12px 48px;user-select:none;}
+  h1{font-size:22px;margin:2px 0 12px;color:#d1751f;}
+  .card{background:#fff;border-radius:20px;box-shadow:0 4px 14px rgba(0,0,0,.08);max-width:600px;margin:0 auto;padding:20px 20px 24px;}
+  .qno{font-size:13px;font-weight:800;color:#9bb;margin-bottom:8px;}
+  .story{font-size:20px;line-height:1.9;font-weight:700;color:#334;text-align:left;margin-bottom:6px;}
+  .story .num{padding:0 3px;border-radius:6px;transition:background .2s;}
+  .story .num.lit{background:#ffe08a;box-shadow:0 0 0 2px #f4b400 inset;color:#8a5a00;}
+  .story .key{padding:0 3px;border-radius:6px;transition:background .2s;}
+  .story .key.lit{background:#ffd0d0;box-shadow:0 0 0 2px #e46060 inset;color:#a52a2a;}
+
+  .steps{display:flex;justify-content:center;gap:8px;margin:14px 0 6px;}
+  .steps .s{width:30px;height:30px;border-radius:50%;background:#eef1f4;color:#9ab;font-weight:900;
+    display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .steps .s.on{background:#f0a030;color:#fff;}
+  .steps .s.done{background:#5bb98c;color:#fff;}
+
+  .prompt{font-size:16px;font-weight:800;color:#457;margin:10px 0;min-height:24px;}
+  .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
+  .btns button{font-size:18px;font-weight:900;padding:14px 20px;border-radius:16px;border:none;cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.14);transition:transform .06s;}
+  .btns button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.14);}
+  .go{background:#f0a030;color:#fff;} .plus{background:#5aa9f0;color:#fff;} .minus{background:#ff8f8f;color:#fff;}
+  .next{background:#5bb98c;color:#fff;} .again{background:#e7edf2;color:#567;box-shadow:0 3px 0 rgba(0,0,0,.1);}
+
+  .found{font-size:17px;font-weight:800;color:#c8631f;min-height:24px;margin-top:4px;}
+  .shiki{font-size:34px;font-weight:900;color:#1f7a5a;margin:12px 0;letter-spacing:2px;}
+  .shiki b{color:#d1751f;}
+  .stage{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0;min-height:10px;}
+  .obj{font-size:32px;line-height:1;transition:opacity .3s,transform .3s;}
+  .obj.a{filter:none;} .obj.gone{opacity:.25;position:relative;}
+  .obj.gone::after{content:"✕";position:absolute;left:0;right:0;top:-2px;color:#e33;font-size:30px;font-weight:900;}
+  .obj.keep{transform:scale(1.12);}
+  .answer{font-size:24px;font-weight:900;color:#1f9d55;margin-top:10px;min-height:30px;opacity:0;transition:opacity .3s;}
+  .answer.show{opacity:1;} .cheer{font-size:30px;}
+  .hint{font-size:13px;color:#89a;margin-top:8px;}
+  .legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:12px;color:#789;margin-top:16px;}
+  .legend b{color:#5aa9f0;} .legend i{color:#e46060;font-style:normal;}
+</style>
+</head>
+<body>
+  <h1>📖 おはなし さんすう</h1>
+  <div class="card">
+    <div class="qno" id="qno"></div>
+    <div class="story" id="story"></div>
+    <div class="steps"><div class="s" id="s1">1</div><div class="s" id="s2">2</div><div class="s" id="s3">3</div></div>
+    <div class="prompt" id="prompt"></div>
+    <div class="found" id="found"></div>
+    <div class="shiki" id="shiki"></div>
+    <div class="stage" id="stage"></div>
+    <div class="answer" id="answer"></div>
+    <div class="btns" id="btns"></div>
+    <div class="hint" id="hint"></div>
+  </div>
+  <div class="legend">
+    <span><b>たしざんの ことば</b>：あわせて・ぜんぶで・みんなで・ふえると</span>
+    <span><i>ひきざんの ことば</i>：のこりは・ちがいは・へると</span>
+  </div>
+
+<script>
+const P=[
+ {tokens:[{t:"ゆうたくんは かけっこで さいしょに "},{n:"2"},{t:"にん ぬき、あとで "},{n:"3"},{t:"にん ぬきました。\n"},{k:"みんなで"},{t:" なんにん ぬいたでしょう？"}],
+  op:"+",a:2,b:3,unit:"にん",ea:"🏃",eb:"🏃"},
+ {tokens:[{t:"めぐみちゃんは いぬを "},{n:"5"},{t:"ひき、ねこを "},{n:"3"},{t:"びき かっています。\n"},{k:"あわせて"},{t:" なんびきの どうぶつを かっているでしょう？"}],
+  op:"+",a:5,b:3,unit:"ひき",ea:"🐕",eb:"🐈"},
+ {tokens:[{t:"あめが "},{n:"8"},{t:"こ ありました。"},{n:"3"},{t:"こ たべました。\n"},{k:"のこりは"},{t:" なんこ でしょう？"}],
+  op:"-",a:8,b:3,unit:"こ",ea:"🍬",eb:"🍬"},
+ {tokens:[{t:"バスに "},{n:"7"},{t:"にん のって います。"},{n:"2"},{t:"にん おりました。\n"},{k:"のこりは"},{t:" なんにん でしょう？"}],
+  op:"-",a:7,b:2,unit:"にん",ea:"🧑",eb:"🧑"},
+ {tokens:[{t:"こうえんに こどもが "},{n:"4"},{t:"にん いました。そこへ "},{n:"3"},{t:"にん きました。\n"},{k:"みんなで"},{t:" なんにん でしょう？"}],
+  op:"+",a:4,b:3,unit:"にん",ea:"🧒",eb:"🧒"},
+ {tokens:[{t:"あかい ふうせんが "},{n:"6"},{t:"こ、あおい ふうせんが "},{n:"4"},{t:"こ あります。\n"},{k:"ちがいは"},{t:" いくつ でしょう？"}],
+  op:"-",a:6,b:4,unit:"こ",ea:"🔴",eb:"🔵"},
+];
+
+let pi=0, step=0;
+const $=id=>document.getElementById(id);
+const cur=()=>P[pi];
+const result=()=>cur().op==='+'?cur().a+cur().b:cur().a-cur().b;
+const opWord=()=>cur().op==='+'?'たしざん':'ひきざん';
+
+function renderStory(){
+  const p=cur(); let html='';
+  p.tokens.forEach(tok=>{
+    if(tok.t!==undefined) html+=tok.t.replace(/\n/g,'<br>');
+    else if(tok.n!==undefined) html+='<span class="num'+(step>=1?' lit':'')+'">'+tok.n+'</span>';
+    else if(tok.k!==undefined) html+='<span class="key'+(step>=2?' lit':'')+'">'+tok.k+'</span>';
+  });
+  $('story').innerHTML=html;
+}
+function setSteps(){
+  [['s1',1],['s2',2],['s3',3]].forEach(([id,k])=>{
+    const el=$(id); el.className='s'+(step>k?' done':step===k?' on':'');
+  });
+}
+function stageObjects(reveal){
+  const p=cur(); let h='';
+  if(p.op==='+'){
+    for(let i=0;i<p.a;i++) h+='<span class="obj a">'+p.ea+'</span>';
+    for(let i=0;i<p.b;i++) h+='<span class="obj a">'+p.eb+'</span>';
+  }else{
+    for(let i=0;i<p.a;i++){ const gone=i>=p.a-p.b; h+='<span class="obj '+(gone?'gone':(reveal?'keep':''))+'">'+p.ea+'</span>'; }
+  }
+  $('stage').innerHTML=h;
+}
+function clearBelow(){$('found').textContent='';$('shiki').innerHTML='';$('stage').innerHTML='';$('answer').className='answer';$('answer').innerHTML='';$('hint').textContent='';}
+
+function render(){
+  renderStory(); setSteps(); clearBelow();
+  const p=cur(); const btns=$('btns'); btns.innerHTML='';
+  $('qno').textContent='もんだい '+(pi+1)+' / '+P.length;
+
+  if(step===0){
+    $('prompt').textContent='まず お話を よもう。じゅんびは いい？';
+    add(btns,'go','① すう を さがす →',()=>{step=1;render();});
+  }
+  else if(step===1){
+    $('prompt').textContent='① 数字（すうじ）は どれ？ みつけたよ！';
+    $('found').textContent='みつけた すう ＝ '+p.a+' と '+p.b;
+    add(btns,'go','② ことば を さがす →',()=>{step=2;render();});
+  }
+  else if(step===2){
+    $('prompt').innerHTML='② あかい ことばは <b>「'+keyText()+'」</b>。これは… たすの？ ひくの？';
+    add(btns,'plus','＋ たしざん',()=>chooseOp('+'));
+    add(btns,'minus','－ ひきざん',()=>chooseOp('-'));
+    $('hint').textContent='ヒント：「あわせて・みんなで」は ふえる／「のこり・ちがい」は へる';
+  }
+  else if(step===3){
+    $('prompt').textContent='③ しきを つくったよ。「けいさん！」を おそう';
+    $('shiki').innerHTML=p.a+' <b>'+(p.op==='+'?'＋':'－')+'</b> '+p.b+' ＝ ？';
+    stageObjects(false);
+    add(btns,'go','けいさん！ 🔢',()=>{step=4;render();});
+  }
+  else if(step===4){
+    $('prompt').textContent='できた！ こえに だして よもう';
+    $('shiki').innerHTML=p.a+' <b>'+(p.op==='+'?'＋':'－')+'</b> '+p.b+' ＝ '+result();
+    stageObjects(true);
+    const ans=$('answer'); ans.innerHTML='<span class="cheer">🎉</span> こたえは <b>'+result()+p.unit+'</b>';
+    ans.classList.add('show');
+    add(btns,'again','もういちど',()=>{step=0;render();});
+    add(btns,'next','つぎの もんだい →',()=>{pi=(pi+1)%P.length;step=0;render();});
+  }
+}
+function keyText(){let s='';cur().tokens.forEach(t=>{if(t.k!==undefined)s=t.k;});return s;}
+function chooseOp(sel){
+  if(sel===cur().op){ step=3; render(); }
+  else{ $('hint').textContent='おしい！ 「'+keyText()+'」は '+opWord()+' だよ。お話を もういちど よんでみよう'; }
+}
+function add(box,cls,label,fn){const b=document.createElement('button');b.className=cls;b.textContent=label;b.onclick=fn;box.appendChild(b);}
+
+render();
+</script>
+</body>
+</html>
