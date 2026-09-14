@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ドイツごあそび">
+<title>ドイツご あそび</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:"Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;color:#234;
+    background:linear-gradient(160deg,#fff7e6,#ffe9ec 60%,#e9f3ff);min-height:100vh;text-align:center;padding:16px 12px 48px;user-select:none;}
+  h1{font-size:22px;margin:2px 0 12px;color:#c0392b;}
+  .top{max-width:640px;margin:0 auto 4px;display:flex;justify-content:space-between;align-items:center;}
+  .pill{display:inline-block;text-decoration:none;font-size:14px;font-weight:800;color:#c0392b;background:#fff;border:2px solid #ffd0c8;border-radius:12px;padding:7px 13px;cursor:pointer;}
+  .card{background:#fff;border-radius:20px;box-shadow:0 4px 14px rgba(0,0,0,.08);max-width:640px;margin:0 auto;padding:20px 18px 24px;position:relative;}
+  .hide{display:none!important;}
+
+  /* home */
+  .modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:8px;}
+  .mode{background:#fff8f2;border:2px solid #ffe1d0;border-radius:18px;padding:18px 12px;cursor:pointer;transition:transform .08s;}
+  .mode:active{transform:scale(.97);}
+  .mode .em{font-size:44px;line-height:1;}
+  .mode .tt{font-size:18px;font-weight:900;margin:8px 0 2px;color:#c0392b;}
+  .mode .dd{font-size:12px;color:#789;}
+  .lead{font-size:15px;color:#a66;margin:0 0 10px;}
+
+  /* quiz */
+  .qno{font-size:13px;font-weight:800;color:#9bb;margin-bottom:6px;display:flex;justify-content:center;gap:5px;flex-wrap:wrap;}
+  .qno .dot{width:14px;height:14px;border-radius:50%;background:#eef1f4;}
+  .qno .dot.ok{background:#f6c343;} .qno .dot.ng{background:#c9d6e0;} .qno .dot.now{background:#ff8f8f;}
+  .prompt{font-size:18px;font-weight:800;color:#457;margin:8px 0;min-height:26px;}
+  .stim{margin:6px auto 12px;min-height:90px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;}
+  .stim .big{font-size:78px;line-height:1;}
+  .stim .word{font-size:28px;font-weight:900;color:#c0392b;}
+  .stim .kana{font-size:15px;color:#a66;font-weight:700;}
+  .stim .jp{font-size:24px;font-weight:900;color:#345;}
+  .speak{font-size:22px;border:none;background:#ffe9d6;border-radius:50%;width:64px;height:64px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.12);}
+  .speak:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.12);}
+  .speak.big{width:110px;height:110px;font-size:52px;}
+  .choices{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px;}
+  .choices.one{grid-template-columns:1fr;}
+  .ch{border:3px solid #ffe1d0;background:#fff;border-radius:18px;padding:14px 10px;cursor:pointer;min-height:84px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 4px 0 rgba(0,0,0,.08);transition:transform .06s;}
+  .ch:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.08);}
+  .ch .em{font-size:52px;line-height:1.1;}
+  .ch .tx{font-size:20px;font-weight:900;color:#345;}
+  .ch .de{font-size:20px;font-weight:900;color:#c0392b;}
+  .ch .ka{font-size:13px;color:#a66;font-weight:700;margin-top:2px;}
+  .ch .num{font-size:44px;font-weight:900;color:#345;}
+  .ch.ok{border-color:#5bb98c;background:#eafff2;}
+  .ch.ng{border-color:#ffb3b3;background:#fff3f3;animation:shake .35s;}
+  .ch.dim{opacity:.35;pointer-events:none;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .msg{font-size:20px;font-weight:900;color:#1f9d55;min-height:30px;margin-top:12px;}
+  .msg.soft{color:#e07a3a;}
+  .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px;}
+  .btns button{font-size:18px;font-weight:900;padding:14px 22px;border-radius:16px;border:none;cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.14);transition:transform .06s;}
+  .btns button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.14);}
+  .next{background:#5bb98c;color:#fff;} .again{background:#e7edf2;color:#567;} .go{background:#f0a030;color:#fff;} .red{background:#ff8f8f;color:#fff;}
+
+  /* browse */
+  .themes{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px;}
+  .themes button{font-size:14px;font-weight:800;border:2px solid #ffe1d0;background:#fff;color:#a55;border-radius:12px;padding:8px 12px;cursor:pointer;}
+  .themes button.on{background:#c0392b;color:#fff;border-color:#c0392b;}
+  .deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .fc{background:#fff8f2;border:2px solid #ffe1d0;border-radius:16px;padding:12px 8px;cursor:pointer;}
+  .fc:active{transform:scale(.97);}
+  .fc .em{font-size:40px;line-height:1.1;}
+  .fc .de{font-size:17px;font-weight:900;color:#c0392b;margin-top:4px;}
+  .fc .ka{font-size:12px;color:#a66;font-weight:700;}
+  .fc .jp{font-size:13px;color:#456;margin-top:2px;}
+
+  /* result & stickers */
+  .stars{font-size:40px;letter-spacing:4px;margin:6px 0;}
+  .newsticker{font-size:110px;line-height:1.1;animation:pop .7s cubic-bezier(.2,1.6,.4,1) both;}
+  @keyframes pop{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+  .book{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-top:12px;}
+  .book .s{font-size:44px;background:#fff8f2;border:2px dashed #ffd0c8;border-radius:14px;padding:6px 0;}
+  .book .s.empty{opacity:.35;font-size:26px;color:#caa;line-height:44px;}
+  .count{font-size:15px;color:#a66;font-weight:800;margin-top:6px;}
+
+  /* confetti */
+  .conf{position:fixed;top:-40px;font-size:26px;pointer-events:none;animation:fall linear forwards;z-index:9;}
+  @keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.6}}
+</style>
+</head>
+<body>
+  <div class="top">
+    <a href="../" class="pill">🏠 おうちへ もどる</a>
+    <span class="pill" id="bookBtn">📒 シールちょう <b id="bookN">0</b></span>
+  </div>
+  <h1>🇦🇹 ドイツご あそび</h1>
+
+  <!-- HOME -->
+  <div class="card" id="home">
+    <p class="lead">どれで あそぶ？ 10もん やると シールが もらえるよ</p>
+    <div class="modes">
+      <div class="mode" data-mode="listen"><div class="em">🎧</div><div class="tt">きいて えらぶ</div><div class="dd">ドイツごを きいて、えを タッチ</div></div>
+      <div class="mode" data-mode="word"><div class="em">👀</div><div class="tt">みて いう</div><div class="dd">えを みて、ドイツごを えらぶ</div></div>
+      <div class="mode" data-mode="phrase"><div class="em">🏫</div><div class="tt">がっこうの ことば</div><div class="dd">トイレ・わからない・てつだって…</div></div>
+      <div class="mode" data-mode="calendar"><div class="em">📅</div><div class="tt">かず・ようび・つき</div><div class="dd">1〜20、げつようび、1がつ…</div></div>
+      <div class="mode" data-mode="browse"><div class="em">📚</div><div class="tt">カードを みる</div><div class="dd">タッチすると よんでくれる</div></div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="card hide" id="quiz">
+    <div class="qno" id="qno"></div>
+    <div class="prompt" id="prompt"></div>
+    <div class="stim" id="stim"></div>
+    <div class="choices" id="choices"></div>
+    <div class="msg" id="msg"></div>
+    <div class="btns" id="qbtns"></div>
+  </div>
+
+  <!-- BROWSE -->
+  <div class="card hide" id="browse">
+    <div class="themes" id="themes"></div>
+    <div class="deck" id="deck"></div>
+    <div class="btns"><button class="again" id="browseBack">← もどる</button></div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="card hide" id="result">
+    <div class="prompt">10もん おつかれさま！</div>
+    <div class="stars" id="stars"></div>
+    <div class="count" id="resultText"></div>
+    <div class="newsticker" id="newsticker"></div>
+    <div class="count">あたらしい シール ゲット！</div>
+    <div class="btns">
+      <button class="go" id="onemore">もう いっかい</button>
+      <button class="again" id="toHome">えらぶ がめんへ</button>
+    </div>
+  </div>
+
+  <!-- STICKER BOOK -->
+  <div class="card hide" id="book">
+    <div class="prompt">📒 シールちょう</div>
+    <div class="count" id="bookCount"></div>
+    <div class="book" id="bookGrid"></div>
+    <div class="btns"><button class="again" id="bookBack">← もどる</button></div>
+  </div>
+
+<script>
+/* ============ データ ============ */
+// g: ドイツ語, k: カタカナ, j: にほんご, e: えもじ(なければ文字で表示), t: テーマ
+const WORDS = [
+  // どうぶつ
+  {g:"der Hund",k:"フント",j:"いぬ",e:"🐶",t:"どうぶつ"},
+  {g:"die Katze",k:"カッツェ",j:"ねこ",e:"🐱",t:"どうぶつ"},
+  {g:"der Hase",k:"ハーゼ",j:"うさぎ",e:"🐰",t:"どうぶつ"},
+  {g:"der Bär",k:"ベア",j:"くま",e:"🐻",t:"どうぶつ"},
+  {g:"die Ente",k:"エンテ",j:"あひる",e:"🦆",t:"どうぶつ"},
+  {g:"der Fisch",k:"フィッシュ",j:"さかな",e:"🐟",t:"どうぶつ"},
+  {g:"die Kuh",k:"クー",j:"うし",e:"🐮",t:"どうぶつ"},
+  {g:"die Maus",k:"マウス",j:"ねずみ",e:"🐭",t:"どうぶつ"},
+  {g:"das Pferd",k:"プフェアト",j:"うま",e:"🐴",t:"どうぶつ"},
+  {g:"der Vogel",k:"フォーゲル",j:"とり",e:"🐦",t:"どうぶつ"},
+  // いろ
+  {g:"rot",k:"ロート",j:"あか",e:"🔴",t:"いろ"},
+  {g:"blau",k:"ブラウ",j:"あお",e:"🔵",t:"いろ"},
+  {g:"gelb",k:"ゲルプ",j:"きいろ",e:"🟡",t:"いろ"},
+  {g:"grün",k:"グリューン",j:"みどり",e:"🟢",t:"いろ"},
+  {g:"orange",k:"オランジェ",j:"オレンジ",e:"🟠",t:"いろ"},
+  {g:"lila",k:"リーラ",j:"むらさき",e:"🟣",t:"いろ"},
+  {g:"rosa",k:"ローザ",j:"ピンク",e:"🌸",t:"いろ"},
+  {g:"braun",k:"ブラウン",j:"ちゃいろ",e:"🟤",t:"いろ"},
+  {g:"schwarz",k:"シュヴァルツ",j:"くろ",e:"⚫",t:"いろ"},
+  {g:"weiß",k:"ヴァイス",j:"しろ",e:"⚪",t:"いろ"},
+  // がっこう
+  {g:"die Schule",k:"シューレ",j:"がっこう",e:"🏫",t:"がっこう"},
+  {g:"die Lehrerin",k:"レーレリン",j:"せんせい（おんなの）",e:"👩‍🏫",t:"がっこう"},
+  {g:"der Lehrer",k:"レーラー",j:"せんせい（おとこの）",e:"👨‍🏫",t:"がっこう"},
+  {g:"das Buch",k:"ブーフ",j:"ほん",e:"📖",t:"がっこう"},
+  {g:"der Bleistift",k:"ブライシュティフト",j:"えんぴつ",e:"✏️",t:"がっこう"},
+  {g:"die Schere",k:"シェーレ",j:"はさみ",e:"✂️",t:"がっこう"},
+  {g:"die Schultasche",k:"シュールタッシェ",j:"ランドセル・かばん",e:"🎒",t:"がっこう"},
+  {g:"die Jause",k:"ヤウゼ",j:"おやつ・おべんとう",e:"🥪",t:"がっこう"},
+  {g:"die Pause",k:"パウゼ",j:"やすみじかん",e:"⏰",t:"がっこう"},
+  {g:"das Klo",k:"クロー",j:"トイレ",e:"🚽",t:"がっこう"},
+  {g:"die Freundin",k:"フロインディン",j:"ともだち（おんなの）",e:"👭",t:"がっこう"},
+  {g:"der Freund",k:"フロイント",j:"ともだち（おとこの）",e:"🧑‍🤝‍🧑",t:"がっこう"},
+  // たべもの
+  {g:"das Wasser",k:"ヴァッサー",j:"みず",e:"💧",t:"たべもの"},
+  {g:"der Apfel",k:"アプフェル",j:"りんご",e:"🍎",t:"たべもの"},
+  {g:"das Brot",k:"ブロート",j:"パン",e:"🍞",t:"たべもの"},
+  {g:"die Milch",k:"ミルヒ",j:"ぎゅうにゅう",e:"🥛",t:"たべもの"},
+  {g:"der Kuchen",k:"クーヘン",j:"ケーキ",e:"🍰",t:"たべもの"},
+  {g:"das Eis",k:"アイス",j:"アイスクリーム",e:"🍦",t:"たべもの"},
+  {g:"die Schokolade",k:"ショコラーデ",j:"チョコレート",e:"🍫",t:"たべもの"},
+  {g:"die Banane",k:"バナーネ",j:"バナナ",e:"🍌",t:"たべもの"},
+  {g:"der Saft",k:"ザフト",j:"ジュース",e:"🧃",t:"たべもの"},
+  // あいさつ
+  {g:"Hallo",k:"ハロー",j:"こんにちは",e:"😊",t:"あいさつ"},
+  {g:"Grüß Gott",k:"グリュース・ゴット",j:"こんにちは（ていねい）",e:"👋",t:"あいさつ"},
+  {g:"Servus",k:"セアヴス",j:"やあ／じゃあね",e:"🙋",t:"あいさつ"},
+  {g:"Guten Morgen",k:"グーテン・モルゲン",j:"おはよう",e:"🌅",t:"あいさつ"},
+  {g:"Gute Nacht",k:"グーテ・ナハト",j:"おやすみ",e:"🌙",t:"あいさつ"},
+  {g:"Tschüss",k:"チュス",j:"バイバイ",e:"👋🏻",t:"あいさつ"},
+  {g:"Auf Wiederschauen",k:"アウフ・ヴィーダーシャウエン",j:"さようなら",e:"🚪",t:"あいさつ"},
+  {g:"Danke",k:"ダンケ",j:"ありがとう",e:"🙏",t:"あいさつ"},
+  {g:"Bitte",k:"ビッテ",j:"どうぞ／おねがい",e:"🤲",t:"あいさつ"},
+  {g:"Ja",k:"ヤー",j:"はい",e:"✅",t:"あいさつ"},
+  {g:"Nein",k:"ナイン",j:"いいえ",e:"❌",t:"あいさつ"},
+];
+
+const NUMBERS = [
+  ["eins","アインス"],["zwei","ツヴァイ"],["drei","ドライ"],["vier","フィーア"],["fünf","フュンフ"],
+  ["sechs","ゼクス"],["sieben","ジーベン"],["acht","アハト"],["neun","ノイン"],["zehn","ツェーン"],
+  ["elf","エルフ"],["zwölf","ツヴェルフ"],["dreizehn","ドライツェーン"],["vierzehn","フィアツェーン"],["fünfzehn","フュンフツェーン"],
+  ["sechzehn","ゼヒツェーン"],["siebzehn","ズィープツェーン"],["achtzehn","アハツェーン"],["neunzehn","ノインツェーン"],["zwanzig","ツヴァンツィヒ"],
+].map(([g,k],i)=>({g,k,j:String(i+1),e:"",num:true,t:"かず"}));
+
+const DAYS = [
+  ["Montag","モーンターク","げつようび","🌙"],["Dienstag","ディーンスターク","かようび","🔥"],["Mittwoch","ミットヴォッホ","すいようび","💧"],
+  ["Donnerstag","ドンナースターク","もくようび","🌳"],["Freitag","フライターク","きんようび","⭐"],["Samstag","ザムスターク","どようび","🏔️"],["Sonntag","ゾンターク","にちようび","☀️"],
+].map(([g,k,j,e])=>({g,k,j,e,t:"ようび"}));
+
+const MONTHS = [
+  ["Jänner","イェンナー"],["Februar","フェーブルアー"],["März","メルツ"],["April","アプリル"],["Mai","マイ"],["Juni","ユーニ"],
+  ["Juli","ユーリ"],["August","アウグスト"],["September","ゼプテンバー"],["Oktober","オクトーバー"],["November","ノヴェンバー"],["Dezember","デツェンバー"],
+].map(([g,k],i)=>({g,k,j:(i+1)+"がつ",e:"",t:"つき"}));
+
+const PHRASES = [
+  {g:"Darf ich aufs Klo gehen?",k:"ダルフ・イッヒ・アウフス・クロー・ゲーエン？",j:"トイレに いってもいい？",e:"🚽"},
+  {g:"Wo ist das Klo?",k:"ヴォー・イスト・ダス・クロー？",j:"トイレは どこ？",e:"🚻"},
+  {g:"Ich verstehe nicht.",k:"イッヒ・フェアシュテーエ・ニヒト",j:"わかりません",e:"🤷"},
+  {g:"Ich weiß nicht.",k:"イッヒ・ヴァイス・ニヒト",j:"しらない",e:"🤔"},
+  {g:"Noch einmal, bitte.",k:"ノッホ・アインマール、ビッテ",j:"もういちど いって",e:"🔁"},
+  {g:"Wie bitte?",k:"ヴィー・ビッテ？",j:"え、なんて？",e:"👂"},
+  {g:"Kannst du mir helfen?",k:"カンスト・ドゥ・ミア・ヘルフェン？",j:"てつだって（ともだちに）",e:"🙋"},
+  {g:"Können Sie mir bitte helfen?",k:"ケネン・ズィー・ミア・ビッテ・ヘルフェン？",j:"てつだってください（せんせいに）",e:"👩‍🏫"},
+  {g:"Hilfe!",k:"ヒルフェ！",j:"たすけて！",e:"🆘"},
+  {g:"Ich habe Durst.",k:"イッヒ・ハーベ・ドゥルスト",j:"のどが かわいた",e:"💧"},
+  {g:"Ich habe Hunger.",k:"イッヒ・ハーベ・フンガー",j:"おなかが すいた",e:"🍞"},
+  {g:"Kann ich Wasser haben?",k:"カン・イッヒ・ヴァッサー・ハーベン？",j:"おみず もらえますか？",e:"🥤"},
+  {g:"Ich bin fertig.",k:"イッヒ・ビン・フェアティヒ",j:"できました！",e:"✅"},
+  {g:"Darf ich mitspielen?",k:"ダルフ・イッヒ・ミットシュピーレン？",j:"いっしょに あそんでいい？",e:"🎈"},
+  {g:"Spielen wir zusammen!",k:"シュピーレン・ヴィア・ツザメン！",j:"いっしょに あそぼう！",e:"🤸"},
+  {g:"Wie heißt du?",k:"ヴィー・ハイスト・ドゥ？",j:"なまえは なに？",e:"🧒"},
+  {g:"Ich heiße Rin.",k:"イッヒ・ハイセ・リン",j:"わたしは りんです",e:"👧"},
+  {g:"Ich komme aus Japan.",k:"イッヒ・コメ・アウス・ヤーパン",j:"にほんから きました",e:"🇯🇵"},
+  {g:"Ich bin sechs Jahre alt.",k:"イッヒ・ビン・ゼクス・ヤーレ・アルト",j:"6さいです",e:"🎂"},
+  {g:"Mir ist schlecht.",k:"ミア・イスト・シュレヒト",j:"きぶんが わるい",e:"🤢"},
+  {g:"Ich habe Bauchweh.",k:"イッヒ・ハーベ・バウホヴェー",j:"おなかが いたい",e:"🤕"},
+  {g:"Ich bin müde.",k:"イッヒ・ビン・ミューデ",j:"つかれた",e:"😴"},
+  {g:"Entschuldigung!",k:"エントシュルディグング！",j:"すみません",e:"🙇"},
+  {g:"Es tut mir leid.",k:"エス・トゥート・ミア・ライト",j:"ごめんなさい",e:"😢"},
+  {g:"Das gefällt mir.",k:"ダス・ゲフェルト・ミア",j:"これ すき！",e:"💖"},
+  {g:"Ich mag das nicht.",k:"イッヒ・マーク・ダス・ニヒト",j:"これは いや",e:"🙅"},
+  {g:"Was heißt das auf Deutsch?",k:"ヴァス・ハイスト・ダス・アウフ・ドイチュ？",j:"これ、ドイツごで なに？",e:"❓"},
+  {g:"Ja, bitte.",k:"ヤー、ビッテ",j:"はい、おねがいします",e:"👍"},
+  {g:"Nein, danke.",k:"ナイン、ダンケ",j:"いいえ、けっこうです",e:"👋"},
+].map(p=>({...p,t:"フレーズ"}));
+
+const STICKERS = ["🐰","🐶","🐱","🐼","🦊","🐧","🦄","🐬","🐢","🦋","🚃","🚄","🚂","🚌","🎡","🎢","🎠","🍰","🍩","🍭","🍦","🧁","🍓","🌈","⭐","🎀","🎈","🌻","🧸","🎨"];
+const PRAISE = ["せいかい！","すごい！","やったね！","Super! （ズーパー）","Toll! （トル）","Bravo! （ブラーヴォ）","Prima! （プリーマ）","そのとおり！"];
+const SOFT = ["おっ、ちがうみたい。もういちど！","おしい！ もういっかい きいてみて","うーん、ほかの かな？"];
+
+/* ============ よみあげ ============ */
+let voice=null;
+function pickVoice(){
+  if(!('speechSynthesis' in window)) return;
+  const vs=speechSynthesis.getVoices();
+  voice = vs.find(v=>v.lang==="de-AT") || vs.find(v=>v.lang==="de-DE") || vs.find(v=>v.lang.startsWith("de")) || null;
+}
+if('speechSynthesis' in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
+function say(text){
+  if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang = voice ? voice.lang : "de-DE";
+  if(voice) u.voice=voice;
+  u.rate=0.82; u.pitch=1.05;
+  speechSynthesis.speak(u);
+}
+
+/* ============ ユーティリティ ============ */
+const $=id=>document.getElementById(id);
+const rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pick=a=>a[rnd(a.length)];
+function show(id){["home","quiz","browse","result","book"].forEach(x=>$(x).classList.toggle("hide",x!==id));}
+function confetti(){
+  for(let i=0;i<22;i++){const s=document.createElement("span");s.className="conf";
+    s.textContent=pick(["🎉","⭐","✨","💛","🌸","🎈"]);s.style.left=rnd(100)+"vw";
+    s.style.animationDuration=(1.6+Math.random()*1.2)+"s";s.style.animationDelay=(Math.random()*.4)+"s";
+    document.body.appendChild(s);setTimeout(()=>s.remove(),3200);}
+}
+function stimCard(item){ // 見せる要素
+  if(item.num) return `<div class="big" style="font-weight:900;color:#345">${item.j}</div>`;
+  if(item.e) return `<div class="big">${item.e}</div>`;
+  return `<div class="jp">${item.j}</div>`;
+}
+function choiceVisual(item){ // 絵えらび用
+  if(item.num) return `<div class="num">${item.j}</div>`;
+  if(item.e) return `<div class="em">${item.e}</div>`;
+  return `<div class="tx">${item.j}</div>`;
+}
+
+/* ============ シール ============ */
+const KEY="deutsch_stickers";
+const loadStickers=()=>{try{return JSON.parse(localStorage.getItem(KEY)||"[]");}catch(e){return [];}};
+function saveSticker(e){const a=loadStickers();a.push({e,d:new Date().toISOString().slice(0,10)});localStorage.setItem(KEY,JSON.stringify(a));updateBookN();}
+function updateBookN(){$("bookN").textContent=loadStickers().length;}
+function renderBook(){
+  const a=loadStickers();
+  $("bookCount").textContent = a.length ? `シール ${a.length}まい あつまったよ！` : "まだ シールが ないよ。10もん やって もらおう！";
+  const g=$("bookGrid");g.innerHTML="";
+  const slots=Math.max(12,Math.ceil(a.length/6)*6);
+  for(let i=0;i<slots;i++){const d=document.createElement("div");
+    if(a[i]){d.className="s";d.textContent=a[i].e;d.title=a[i].d;}else{d.className="s empty";d.textContent="・";}
+    g.appendChild(d);}
+}
+
+/* ============ クイズ ============ */
+let mode=null, queue=[], qi=0, results=[], tries=0, cur=null;
+
+function buildQueue(){
+  const N=10;
+  if(mode==="listen"||mode==="word") return shuffle(WORDS).slice(0,N);
+  if(mode==="phrase") return shuffle(PHRASES).slice(0,N);
+  if(mode==="calendar") return shuffle([...NUMBERS,...DAYS,...MONTHS]).slice(0,N);
+  return [];
+}
+function distractors(item, pool, n){
+  const same=pool.filter(x=>x!==item && x.t===item.t && x.j!==item.j);
+  const other=pool.filter(x=>x!==item && x.t!==item.t);
+  const d=shuffle(same).slice(0,n);
+  if(d.length<n) d.push(...shuffle(other).slice(0,n-d.length));
+  return d;
+}
+function poolFor(){ return mode==="phrase"?PHRASES : mode==="calendar"?[...NUMBERS,...DAYS,...MONTHS] : WORDS; }
+
+function startQuiz(m){
+  mode=m; queue=buildQueue(); qi=0; results=[];
+  show("quiz"); nextQ();
+}
+function renderDots(){
+  const q=$("qno");q.innerHTML="";
+  for(let i=0;i<queue.length;i++){const d=document.createElement("span");d.className="dot"+(i<qi?(results[i]?" ok":" ng"):(i===qi?" now":""));q.appendChild(d);}
+}
+function nextQ(){
+  if(qi>=queue.length) return finish();
+  cur=queue[qi]; tries=0; renderDots();
+  $("msg").textContent=""; $("msg").className="msg"; $("qbtns").innerHTML="";
+  const st=$("stim"), ch=$("choices"); ch.className="choices"; ch.innerHTML="";
+  const pool=poolFor();
+
+  if(mode==="listen"){
+    $("prompt").textContent="きいて、あってる えを タッチ！";
+    st.innerHTML=`<button class="speak big" id="replay">🔊</button>`;
+    $("replay").onclick=()=>say(cur.g);
+    const opts=shuffle([cur,...distractors(cur,pool,3)]);
+    opts.forEach(o=>{const b=document.createElement("div");b.className="ch";b.innerHTML=choiceVisual(o);b.onclick=()=>answer(o===cur,b,opts);ch.appendChild(b);});
+    setTimeout(()=>say(cur.g),350);
+  }
+  else if(mode==="word"||mode==="calendar"){
+    $("prompt").textContent = mode==="word" ? "これは ドイツごで なに？" : "ドイツごで いうと？";
+    st.innerHTML=stimCard(cur);
+    const opts=shuffle([cur,...distractors(cur,pool,3)]);
+    opts.forEach(o=>{const b=document.createElement("div");b.className="ch";b.innerHTML=`<div class="de">${o.g}</div><div class="ka">${o.k}</div>`;b.onclick=()=>{say(o.g);answer(o===cur,b,opts);};ch.appendChild(b);});
+  }
+  else if(mode==="phrase"){
+    $("prompt").textContent="こんなとき、なんて いう？";
+    st.innerHTML=`<div class="big">${cur.e}</div><div class="jp">${cur.j}</div>`;
+    ch.className="choices one";
+    const opts=shuffle([cur,...distractors(cur,pool,2)]);
+    opts.forEach(o=>{const b=document.createElement("div");b.className="ch";b.style.minHeight="64px";b.innerHTML=`<div class="de">${o.g}</div><div class="ka">${o.k}</div>`;b.onclick=()=>{say(o.g);answer(o===cur,b,opts);};ch.appendChild(b);});
+  }
+}
+function answer(ok,btn,opts){
+  const all=[...$("choices").children];
+  if(ok){
+    btn.classList.add("ok"); all.forEach(b=>{if(b!==btn)b.classList.add("dim");});
+    results[qi]= tries===0; $("msg").textContent=pick(PRAISE); $("msg").className="msg";
+    if(tries===0) confetti();
+    if(mode!=="listen") setTimeout(()=>say(cur.g),150); else say(cur.g);
+    // 正解のことばを見せる
+    $("stim").innerHTML=`<div class="big">${cur.num?cur.j:(cur.e||"")}</div><div><div class="word">${cur.g}</div><div class="kana">${cur.k}</div><div class="kana">${cur.j}</div></div><button class="speak" id="replay2">🔊</button>`;
+    $("replay2").onclick=()=>say(cur.g);
+    $("qbtns").innerHTML=`<button class="next" id="nx">つぎへ ▶</button>`; $("nx").onclick=()=>{qi++;nextQ();};
+  }else{
+    tries++;
+    btn.classList.add("ng"); setTimeout(()=>{btn.classList.remove("ng");btn.classList.add("dim");},400);
+    $("msg").textContent=pick(SOFT); $("msg").className="msg soft";
+    if(tries>=2){ // こたえを見せる
+      results[qi]=false;
+      const idx=opts.indexOf(cur); const cb=all[idx]; cb.classList.add("ok"); all.forEach(b=>{if(b!==cb)b.classList.add("dim");});
+      $("msg").textContent="こたえは これ！ いっしょに いってみよう"; $("msg").className="msg soft";
+      say(cur.g);
+      $("stim").innerHTML=`<div class="big">${cur.num?cur.j:(cur.e||"")}</div><div><div class="word">${cur.g}</div><div class="kana">${cur.k}</div><div class="kana">${cur.j}</div></div><button class="speak" id="replay2">🔊</button>`;
+      $("replay2").onclick=()=>say(cur.g);
+      $("qbtns").innerHTML=`<button class="next" id="nx">つぎへ ▶</button>`; $("nx").onclick=()=>{qi++;nextQ();};
+    }
+  }
+}
+function finish(){
+  const n=results.filter(Boolean).length;
+  $("stars").textContent="⭐".repeat(n)+"☆".repeat(10-n);
+  $("resultText").textContent = n===10 ? "ぜんぶ いっかいで せいかい！ すごい！" : n>=7 ? `いっかいで せいかい ${n}こ！ よく がんばった！` : `${n}こ せいかい。たくさん かんがえたね！`;
+  const s=pick(STICKERS); $("newsticker").textContent=s; saveSticker(s);
+  show("result"); confetti(); setTimeout(confetti,600);
+}
+
+/* ============ カードを みる ============ */
+const THEMES=["あいさつ","どうぶつ","いろ","がっこう","たべもの","かず","ようび","つき","フレーズ"];
+let theme="あいさつ";
+function renderBrowse(){
+  const t=$("themes");t.innerHTML="";
+  THEMES.forEach(th=>{const b=document.createElement("button");b.textContent=th;b.className=th===theme?"on":"";b.onclick=()=>{theme=th;renderBrowse();};t.appendChild(b);});
+  const all=[...WORDS,...NUMBERS,...DAYS,...MONTHS,...PHRASES].filter(x=>x.t===theme);
+  const d=$("deck");d.innerHTML="";
+  all.forEach(x=>{const c=document.createElement("div");c.className="fc";
+    c.innerHTML=`<div class="em">${x.num?x.j:(x.e||"")}</div><div class="de">${x.g}</div><div class="ka">${x.k}</div><div class="jp">${x.num?"":x.j}</div>`;
+    c.onclick=()=>say(x.g);d.appendChild(c);});
+}
+
+/* ============ イベント ============ */
+document.querySelectorAll(".mode").forEach(m=>m.onclick=()=>{
+  const md=m.dataset.mode;
+  if(md==="browse"){renderBrowse();show("browse");} else startQuiz(md);
+});
+$("browseBack").onclick=()=>show("home");
+$("onemore").onclick=()=>startQuiz(mode);
+$("toHome").onclick=()=>show("home");
+$("bookBtn").onclick=()=>{renderBook();show("book");};
+$("bookBack").onclick=()=>show("home");
+updateBookN();
+</script>
+</body>
+</html>
