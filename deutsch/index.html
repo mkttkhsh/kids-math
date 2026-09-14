@@ -26,6 +26,14 @@
   .mode .dd{font-size:12px;color:#789;}
   .lead{font-size:15px;color:#a66;margin:0 0 10px;}
 
+  /* voice */
+  .voicebox{margin-top:18px;padding:12px;border-radius:14px;background:#fbf7f3;border:1px dashed #f0d8c8;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;}
+  .vlabel{font-size:14px;font-weight:900;color:#a66;}
+  .voicebox select{font-size:14px;padding:8px 10px;border-radius:10px;border:2px solid #ffe1d0;background:#fff;color:#345;max-width:260px;}
+  .vbtn{font-size:14px;font-weight:800;border:2px solid #ffe1d0;background:#fff;color:#a55;border-radius:10px;padding:8px 12px;cursor:pointer;}
+  .vbtn.on{background:#c0392b;color:#fff;border-color:#c0392b;}
+  .vhint{width:100%;font-size:11px;color:#a98;margin-top:4px;line-height:1.5;}
+
   /* quiz */
   .qno{font-size:13px;font-weight:800;color:#9bb;margin-bottom:6px;display:flex;justify-content:center;gap:5px;flex-wrap:wrap;}
   .qno .dot{width:14px;height:14px;border-radius:50%;background:#eef1f4;}
@@ -103,6 +111,13 @@
       <div class="mode" data-mode="phrase"><div class="em">🏫</div><div class="tt">がっこうの ことば</div><div class="dd">トイレ・わからない・てつだって…</div></div>
       <div class="mode" data-mode="calendar"><div class="em">📅</div><div class="tt">かず・ようび・つき</div><div class="dd">1〜20、げつようび、1がつ…</div></div>
       <div class="mode" data-mode="browse"><div class="em">📚</div><div class="tt">カードを みる</div><div class="dd">タッチすると よんでくれる</div></div>
+    </div>
+    <div class="voicebox">
+      <span class="vlabel">🗣 こえ</span>
+      <select id="voiceSel"></select>
+      <button class="vbtn" id="voiceTest">🔊 ためす</button>
+      <button class="vbtn" id="slowBtn">🐢 ゆっくり</button>
+      <div class="vhint">自然な声にするには iPad の 設定 → アクセシビリティ → 読み上げコンテンツ → 声 → ドイツ語 で「Anna（拡張／プレミアム）」をダウンロード</div>
     </div>
   </div>
 
@@ -261,21 +276,43 @@ const PRAISE = ["せいかい！","すごい！","やったね！","Super! （�
 const SOFT = ["おっ、ちがうみたい。もういちど！","おしい！ もういっかい きいてみて","うーん、ほかの かな？"];
 
 /* ============ よみあげ ============ */
-let voice=null;
+// iOS には「Eddy / Grandma / Rocko …」など機械的な声（Eloquence）が de-DE にも並ぶので、
+// 自然な声（Anna / Helena / Martin … の Enhanced / Premium）を点数で優先し、画面からも選べるようにする。
+let voice=null, voices=[];
+const BAD=/eddy|flo\b|grandma|grandpa|reed|rocko|sandy|shelley|eloquence|compact|novelty|bells|bubbles|organ|trinoids|zarvox/i;
+const GOOD=/anna|helena|martin|petra|viktor|markus|yannick|hans|conrad|katja|vicki|marlene|siri/i;
+function score(v){
+  let s=0;
+  if(v.lang==="de-AT") s+=5; else if(v.lang==="de-DE") s+=4; else s+=1;
+  if(/premium/i.test(v.name)) s+=30; else if(/enhanced|erweitert|verbessert/i.test(v.name)) s+=20;
+  if(GOOD.test(v.name)) s+=10;
+  if(BAD.test(v.name)) s-=50;
+  return s;
+}
 function pickVoice(){
   if(!('speechSynthesis' in window)) return;
-  const vs=speechSynthesis.getVoices();
-  voice = vs.find(v=>v.lang==="de-AT") || vs.find(v=>v.lang==="de-DE") || vs.find(v=>v.lang.startsWith("de")) || null;
+  voices=speechSynthesis.getVoices().filter(v=>/^de/i.test(v.lang)).sort((a,b)=>score(b)-score(a));
+  const saved=localStorage.getItem("deutsch_voice");
+  voice = voices.find(v=>v.voiceURI===saved) || voices[0] || null;
+  renderVoiceSel();
 }
 if('speechSynthesis' in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
+let slow = localStorage.getItem("deutsch_slow")==="1";
 function say(text){
   if(!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);
   u.lang = voice ? voice.lang : "de-DE";
   if(voice) u.voice=voice;
-  u.rate=0.82; u.pitch=1.05;
+  u.rate = slow ? 0.72 : 0.95; u.pitch=1.0;
   speechSynthesis.speak(u);
+}
+function renderVoiceSel(){
+  const sel=document.getElementById("voiceSel"); if(!sel) return;
+  sel.innerHTML="";
+  if(!voices.length){ const o=document.createElement("option"); o.textContent="ドイツ語の声が見つかりません（設定→アクセシビリティ→読み上げコンテンツ→声 でダウンロード）"; sel.appendChild(o); return; }
+  voices.forEach(v=>{ const o=document.createElement("option"); o.value=v.voiceURI; o.textContent=`${v.name}（${v.lang}）`; if(v===voice) o.selected=true; sel.appendChild(o); });
+  document.getElementById("slowBtn").classList.toggle("on",slow);
 }
 
 /* ============ ユーティリティ ============ */
@@ -429,6 +466,10 @@ $("onemore").onclick=()=>startQuiz(mode);
 $("toHome").onclick=()=>show("home");
 $("bookBtn").onclick=()=>{renderBook();show("book");};
 $("bookBack").onclick=()=>show("home");
+$("voiceSel").onchange=e=>{ voice=voices.find(v=>v.voiceURI===e.target.value)||voice; localStorage.setItem("deutsch_voice",e.target.value); say("Grüß Gott! Ich heiße Rin."); };
+$("voiceTest").onclick=()=>{ pickVoice(); say("Grüß Gott! Ich heiße Rin. Ich komme aus Japan."); };
+$("slowBtn").onclick=()=>{ slow=!slow; localStorage.setItem("deutsch_slow",slow?"1":"0"); $("slowBtn").classList.toggle("on",slow); say("Guten Morgen!"); };
+renderVoiceSel();
 updateBookN();
 </script>
 </body>
