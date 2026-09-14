@@ -279,6 +279,7 @@ const SOFT = ["おっ、ちがうみたい。もういちど！","おしい！ �
 // iOS には「Eddy / Grandma / Rocko …」など機械的な声（Eloquence）が de-DE にも並ぶので、
 // 自然な声（Anna / Helena / Martin … の Enhanced / Premium）を点数で優先し、画面からも選べるようにする。
 let voice=null, voices=[];
+let slow = localStorage.getItem("deutsch_slow")==="1";
 const BAD=/eddy|flo\b|grandma|grandpa|reed|rocko|sandy|shelley|eloquence|compact|novelty|bells|bubbles|organ|trinoids|zarvox/i;
 const GOOD=/anna|helena|martin|petra|viktor|markus|yannick|hans|conrad|katja|vicki|marlene|siri/i;
 function score(v){
@@ -296,8 +297,6 @@ function pickVoice(){
   voice = voices.find(v=>v.voiceURI===saved) || voices[0] || null;
   renderVoiceSel();
 }
-if('speechSynthesis' in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
-let slow = localStorage.getItem("deutsch_slow")==="1";
 function say(text){
   if(!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
@@ -312,8 +311,9 @@ function renderVoiceSel(){
   sel.innerHTML="";
   if(!voices.length){ const o=document.createElement("option"); o.textContent="ドイツ語の声が見つかりません（設定→アクセシビリティ→読み上げコンテンツ→声 でダウンロード）"; sel.appendChild(o); return; }
   voices.forEach(v=>{ const o=document.createElement("option"); o.value=v.voiceURI; o.textContent=`${v.name}（${v.lang}）`; if(v===voice) o.selected=true; sel.appendChild(o); });
-  document.getElementById("slowBtn").classList.toggle("on",slow);
+  const sb=document.getElementById("slowBtn"); if(sb) sb.classList.toggle("on",slow);
 }
+// 声の一覧は DOM とイベント設定が終わってから（ファイル末尾で）読み込む
 
 /* ============ ユーティリティ ============ */
 const $=id=>document.getElementById(id);
@@ -469,8 +469,10 @@ $("bookBack").onclick=()=>show("home");
 $("voiceSel").onchange=e=>{ voice=voices.find(v=>v.voiceURI===e.target.value)||voice; localStorage.setItem("deutsch_voice",e.target.value); say("Grüß Gott! Ich heiße Rin."); };
 $("voiceTest").onclick=()=>{ pickVoice(); say("Grüß Gott! Ich heiße Rin. Ich komme aus Japan."); };
 $("slowBtn").onclick=()=>{ slow=!slow; localStorage.setItem("deutsch_slow",slow?"1":"0"); $("slowBtn").classList.toggle("on",slow); say("Guten Morgen!"); };
-renderVoiceSel();
 updateBookN();
+try{
+  if('speechSynthesis' in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
+}catch(e){ console.warn("voice init failed", e); }
 </script>
 </body>
 </html>
