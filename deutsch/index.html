@@ -54,6 +54,15 @@
   .score{font-size:18px;font-weight:900;color:#457;}
   .rare{font-size:15px;font-weight:900;color:#d4a017;}
 
+  /* progress */
+  .progress{margin:0 0 12px;padding:10px 14px;border-radius:14px;background:#fff8f2;border:2px solid #ffe1d0;}
+  .pl{font-size:14px;font-weight:900;color:#a55;margin-bottom:6px;} .pl b{color:#c0392b;font-size:18px;}
+  .bar{height:12px;border-radius:6px;background:#ffe9e0;overflow:hidden;}
+  .fill{height:100%;width:0;background:linear-gradient(90deg,#f6c343,#ff8f5a);border-radius:6px;transition:width .6s;}
+  .themes .cnt{font-size:10px;opacity:.75;margin-left:3px;}
+  .fc.done{border-color:#5bb98c;background:#eafff2;} .fc .chk{font-size:12px;color:#1f9d55;font-weight:900;}
+  .stim .q{font-size:24px;font-weight:900;color:#c0392b;} .stim .qj{font-size:16px;color:#345;font-weight:800;}
+
   /* voice */
   .voicebox{margin-top:18px;padding:12px;border-radius:14px;background:#fbf7f3;border:1px dashed #f0d8c8;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;}
   .vlabel{font-size:14px;font-weight:900;color:#a66;}
@@ -133,8 +142,11 @@
   <!-- HOME -->
   <div class="card" id="home">
     <p class="lead">レベルと あそびを えらんでね。10もん やると シールが もらえるよ</p>
+    <div class="progress"><div class="pl">🧠 おぼえた ことば <b id="progN">0</b> / <span id="progT">0</span></div><div class="bar"><div class="fill" id="progFill"></div></div></div>
     <div class="sec">レベル</div>
     <div class="levels" id="levels"></div>
+    <div class="sec">テーマ（きいて・みて・かんむり・つづり・タイムアタック に きく）</div>
+    <div class="themes" id="tfilter"></div>
     <div class="sec">あそび</div>
     <div class="modes">
       <div class="mode" data-mode="listen"><div class="em">🎧</div><div class="tt">きいて えらぶ</div><div class="dd">ドイツごを きいて、えを タッチ</div></div>
@@ -144,6 +156,8 @@
       <div class="mode" data-mode="article"><div class="em">👑</div><div class="tt">der・die・das</div><div class="dd">ことばの「かんむり」を あてる</div></div>
       <div class="mode" data-mode="spell"><div class="em">🔤</div><div class="tt">つづり</div><div class="dd">もじを ならべて ことばを つくる</div></div>
       <div class="mode" data-mode="sentence"><div class="em">🧱</div><div class="tt">ぶんを つくる</div><div class="dd">ことばを ならべて フレーズに</div></div>
+      <div class="mode" data-mode="teacher"><div class="em">🧑‍🏫</div><div class="tt">せんせいの ことば</div><div class="dd">きいて、なにを するか えらぶ</div></div>
+      <div class="mode" data-mode="conv"><div class="em">💬</div><div class="tt">かいわ</div><div class="dd">しつもんに こたえよう</div></div>
       <div class="mode" data-mode="time"><div class="em">⚡</div><div class="tt">タイムアタック</div><div class="dd">60びょうで なんもん できる？</div></div>
       <div class="mode" data-mode="browse"><div class="em">📚</div><div class="tt">カードを みる</div><div class="dd">タッチすると よんでくれる</div></div>
     </div>
@@ -255,6 +269,99 @@ const WORDS = [
   {g:"Bitte",k:"ビッテ",j:"どうぞ／おねがい",e:"🤲",t:"あいさつ"},
   {g:"Ja",k:"ヤー",j:"はい",e:"✅",t:"あいさつ"},
   {g:"Nein",k:"ナイン",j:"いいえ",e:"❌",t:"あいさつ"},
+  // かぞく
+  {g:"die Mama",k:"ママ",j:"ママ",e:"👩",t:"かぞく"},
+  {g:"der Papa",k:"パパ",j:"パパ",e:"👨",t:"かぞく"},
+  {g:"die Oma",k:"オーマ",j:"おばあちゃん",e:"👵",t:"かぞく"},
+  {g:"der Opa",k:"オーパ",j:"おじいちゃん",e:"👴",t:"かぞく"},
+  {g:"die Schwester",k:"シュヴェスター",j:"おねえちゃん・いもうと",e:"👧",t:"かぞく"},
+  {g:"der Bruder",k:"ブルーダー",j:"おにいちゃん・おとうと",e:"👦",t:"かぞく"},
+  {g:"das Baby",k:"ベービー",j:"あかちゃん",e:"👶",t:"かぞく"},
+  {g:"die Familie",k:"ファミーリエ",j:"かぞく",e:"👨‍👩‍👧",t:"かぞく"},
+  // からだ
+  {g:"der Kopf",k:"コプフ",j:"あたま",e:"🙂",t:"からだ"},
+  {g:"das Auge",k:"アウゲ",j:"め",e:"👁️",t:"からだ"},
+  {g:"die Nase",k:"ナーゼ",j:"はな",e:"👃",t:"からだ"},
+  {g:"der Mund",k:"ムント",j:"くち",e:"👄",t:"からだ"},
+  {g:"das Ohr",k:"オーア",j:"みみ",e:"👂",t:"からだ"},
+  {g:"die Hand",k:"ハント",j:"て",e:"✋",t:"からだ"},
+  {g:"der Fuß",k:"フース",j:"あし",e:"🦶",t:"からだ"},
+  {g:"der Bauch",k:"バウホ",j:"おなか",e:"🫃",t:"からだ"},
+  {g:"das Haar",k:"ハール",j:"かみのけ",e:"💇‍♀️",t:"からだ"},
+  {g:"der Zahn",k:"ツァーン",j:"は",e:"🦷",t:"からだ"},
+  // ふく
+  {g:"die Jacke",k:"ヤッケ",j:"ジャケット",e:"🧥",t:"ふく"},
+  {g:"die Hose",k:"ホーゼ",j:"ズボン",e:"👖",t:"ふく"},
+  {g:"das T-Shirt",k:"ティーシャツ",j:"Tシャツ",e:"👕",t:"ふく"},
+  {g:"der Schuh",k:"シュー",j:"くつ",e:"👟",t:"ふく"},
+  {g:"die Mütze",k:"ミュッツェ",j:"ぼうし",e:"🧢",t:"ふく"},
+  {g:"der Schal",k:"シャール",j:"マフラー",e:"🧣",t:"ふく"},
+  {g:"das Kleid",k:"クライト",j:"ワンピース",e:"👗",t:"ふく"},
+  {g:"die Socke",k:"ゾッケ",j:"くつした",e:"🧦",t:"ふく"},
+  // てんき
+  {g:"die Sonne",k:"ゾンネ",j:"たいよう",e:"☀️",t:"てんき"},
+  {g:"der Regen",k:"レーゲン",j:"あめ",e:"🌧️",t:"てんき"},
+  {g:"der Schnee",k:"シュネー",j:"ゆき",e:"❄️",t:"てんき"},
+  {g:"die Wolke",k:"ヴォルケ",j:"くも",e:"☁️",t:"てんき"},
+  {g:"der Wind",k:"ヴィント",j:"かぜ",e:"🌬️",t:"てんき"},
+  {g:"der Regenbogen",k:"レーゲンボーゲン",j:"にじ",e:"🌈",t:"てんき"},
+  {g:"es ist kalt",k:"エス・イスト・カルト",j:"さむい",e:"🥶",t:"てんき"},
+  {g:"es ist heiß",k:"エス・イスト・ハイス",j:"あつい",e:"🥵",t:"てんき"},
+  // おうち
+  {g:"das Haus",k:"ハウス",j:"いえ",e:"🏠",t:"おうち"},
+  {g:"die Tür",k:"テューア",j:"ドア",e:"🚪",t:"おうち"},
+  {g:"das Fenster",k:"フェンスター",j:"まど",e:"🪟",t:"おうち"},
+  {g:"das Bett",k:"ベット",j:"ベッド",e:"🛏️",t:"おうち"},
+  {g:"der Tisch",k:"ティッシュ",j:"つくえ・テーブル",e:"🪑",t:"おうち"},
+  {g:"der Stuhl",k:"シュトゥール",j:"いす",e:"💺",t:"おうち"},
+  {g:"die Küche",k:"キュッヒェ",j:"だいどころ",e:"🍳",t:"おうち"},
+  {g:"das Bad",k:"バート",j:"おふろ",e:"🛁",t:"おうち"},
+  {g:"die Lampe",k:"ランペ",j:"ランプ",e:"💡",t:"おうち"},
+  {g:"der Schlüssel",k:"シュリュッセル",j:"かぎ",e:"🔑",t:"おうち"},
+  // しぜん
+  {g:"der Baum",k:"バウム",j:"き",e:"🌳",t:"しぜん"},
+  {g:"die Blume",k:"ブルーメ",j:"はな",e:"🌸",t:"しぜん"},
+  {g:"der Berg",k:"ベルク",j:"やま",e:"⛰️",t:"しぜん"},
+  {g:"der See",k:"ゼー",j:"みずうみ",e:"🏞️",t:"しぜん"},
+  {g:"der Stern",k:"シュテルン",j:"ほし",e:"⭐",t:"しぜん"},
+  {g:"der Mond",k:"モーント",j:"つき",e:"🌙",t:"しぜん"},
+  {g:"das Gras",k:"グラース",j:"くさ",e:"🌿",t:"しぜん"},
+  {g:"der Wald",k:"ヴァルト",j:"もり",e:"🌲",t:"しぜん"},
+  // どうさ
+  {g:"laufen",k:"ラウフェン",j:"はしる",e:"🏃‍♀️",t:"どうさ"},
+  {g:"essen",k:"エッセン",j:"たべる",e:"🍽️",t:"どうさ"},
+  {g:"trinken",k:"トリンケン",j:"のむ",e:"🥤",t:"どうさ"},
+  {g:"schlafen",k:"シュラーフェン",j:"ねる",e:"😴",t:"どうさ"},
+  {g:"lesen",k:"レーゼン",j:"よむ",e:"📚",t:"どうさ"},
+  {g:"malen",k:"マーレン",j:"えを かく",e:"🎨",t:"どうさ"},
+  {g:"singen",k:"ジンゲン",j:"うたう",e:"🎤",t:"どうさ"},
+  {g:"tanzen",k:"タンツェン",j:"おどる",e:"💃",t:"どうさ"},
+  {g:"spielen",k:"シュピーレン",j:"あそぶ",e:"🎈",t:"どうさ"},
+  {g:"springen",k:"シュプリンゲン",j:"ジャンプする",e:"🤸",t:"どうさ"},
+  {g:"schwimmen",k:"シュヴィメン",j:"およぐ",e:"🏊‍♀️",t:"どうさ"},
+  {g:"lachen",k:"ラッヘン",j:"わらう",e:"😆",t:"どうさ"},
+  // のりもの
+  {g:"der Zug",k:"ツーク",j:"でんしゃ",e:"🚆",t:"のりもの"},
+  {g:"das Auto",k:"アウト",j:"くるま",e:"🚗",t:"のりもの"},
+  {g:"der Bus",k:"ブス",j:"バス",e:"🚌",t:"のりもの"},
+  {g:"das Fahrrad",k:"ファーラート",j:"じてんしゃ",e:"🚲",t:"のりもの"},
+  {g:"das Flugzeug",k:"フルークツォイク",j:"ひこうき",e:"✈️",t:"のりもの"},
+  {g:"das Schiff",k:"シッフ",j:"ふね",e:"🚢",t:"のりもの"},
+  {g:"die Straßenbahn",k:"シュトラーセンバーン",j:"ろめんでんしゃ（ウィーンの Bim）",e:"🚋",t:"のりもの"},
+  {g:"die U-Bahn",k:"ウーバーン",j:"ちかてつ",e:"🚇",t:"のりもの"},
+  // はんたい
+  {g:"groß",k:"グロース",j:"おおきい",e:"🐘",t:"はんたい"},
+  {g:"klein",k:"クライン",j:"ちいさい",e:"🐜",t:"はんたい"},
+  {g:"schnell",k:"シュネル",j:"はやい",e:"🐆",t:"はんたい"},
+  {g:"langsam",k:"ラングザム",j:"おそい",e:"🐌",t:"はんたい"},
+  {g:"alt",k:"アルト",j:"ふるい",e:"🏚️",t:"はんたい"},
+  {g:"neu",k:"ノイ",j:"あたらしい",e:"✨",t:"はんたい"},
+  {g:"gut",k:"グート",j:"いい",e:"👍",t:"はんたい"},
+  {g:"schlecht",k:"シュレヒト",j:"わるい",e:"👎",t:"はんたい"},
+  {g:"viel",k:"フィール",j:"たくさん",e:"🍬🍬🍬",t:"はんたい"},
+  {g:"wenig",k:"ヴェーニヒ",j:"すこし",e:"🍬",t:"はんたい"},
+  {g:"laut",k:"ラウト",j:"うるさい",e:"📢",t:"はんたい"},
+  {g:"leise",k:"ライゼ",j:"しずか",e:"🤫",t:"はんたい"},
 ];
 
 const NUMBERS = [
@@ -263,6 +370,10 @@ const NUMBERS = [
   ["elf","エルフ"],["zwölf","ツヴェルフ"],["dreizehn","ドライツェーン"],["vierzehn","フィアツェーン"],["fünfzehn","フュンフツェーン"],
   ["sechzehn","ゼヒツェーン"],["siebzehn","ズィープツェーン"],["achtzehn","アハツェーン"],["neunzehn","ノインツェーン"],["zwanzig","ツヴァンツィヒ"],
 ].map(([g,k],i)=>({g,k,j:String(i+1),e:"",num:true,t:"かず"}));
+NUMBERS.push(...[
+  ["einundzwanzig","アインウントツヴァンツィヒ",21],["zweiundzwanzig","ツヴァイウントツヴァンツィヒ",22],["dreißig","ドライシヒ",30],["vierzig","フィアツィヒ",40],
+  ["fünfzig","フュンフツィヒ",50],["sechzig","ゼヒツィヒ",60],["siebzig","ズィープツィヒ",70],["achtzig","アハツィヒ",80],["neunzig","ノインツィヒ",90],["hundert","フンダート",100],
+].map(([g,k,n])=>({g,k,j:String(n),e:"",num:true,t:"かず"})));
 
 const DAYS = [
   ["Montag","モーンターク","げつようび","🌙"],["Dienstag","ディーンスターク","かようび","🔥"],["Mittwoch","ミットヴォッホ","すいようび","💧"],
@@ -306,6 +417,46 @@ const PHRASES = [
   {g:"Nein, danke.",k:"ナイン、ダンケ",j:"いいえ、けっこうです",e:"👋"},
 ].map(p=>({...p,t:"フレーズ"}));
 
+// せんせいが きょうしつで いう ことば（きいて → えを えらぶ）
+const TEACHER = [
+  {g:"Setzt euch!",k:"ゼッツト・オイヒ",j:"すわって",e:"🪑"},
+  {g:"Steht auf!",k:"シュテート・アウフ",j:"たって",e:"🧍"},
+  {g:"Hört zu!",k:"ヘールト・ツー",j:"きいて",e:"👂"},
+  {g:"Seid leise!",k:"ザイト・ライゼ",j:"しずかに",e:"🤫"},
+  {g:"Schaut her!",k:"シャウト・ヘア",j:"こっちを みて",e:"👀"},
+  {g:"Kommt her!",k:"コムト・ヘア",j:"こっちに きて",e:"👋"},
+  {g:"Macht die Bücher auf!",k:"マハト・ディ・ビューヒャー・アウフ",j:"ほんを ひらいて",e:"📖"},
+  {g:"Macht die Bücher zu!",k:"マハト・ディ・ビューヒャー・ツー",j:"ほんを とじて",e:"📕"},
+  {g:"Nehmt einen Stift!",k:"ネームト・アイネン・シュティフト",j:"えんぴつを もって",e:"✏️"},
+  {g:"Hände waschen!",k:"ヘンデ・ヴァッシェン",j:"てを あらって",e:"🧼"},
+  {g:"Räumt auf!",k:"ロイムト・アウフ",j:"かたづけて",e:"🧹"},
+  {g:"Zieht die Jacke an!",k:"ツィート・ディ・ヤッケ・アン",j:"ジャケットを きて",e:"🧥"},
+  {g:"Stellt euch an!",k:"シュテルト・オイヒ・アン",j:"ならんで",e:"🚶‍♀️🚶"},
+  {g:"Jetzt ist Pause.",k:"イェッツト・イスト・パウゼ",j:"やすみじかん だよ",e:"⏰"},
+  {g:"Gut gemacht!",k:"グート・ゲマハト",j:"よく できました",e:"👏"},
+  {g:"Es ist Zeit zu gehen.",k:"エス・イスト・ツァイト・ツー・ゲーエン",j:"かえる じかん",e:"🏠"},
+].map(p=>({...p,t:"せんせい"}));
+
+// かいわ: しつもん q → こたえ g（g/k/j は こたえ）
+const CONV = [
+  {q:"Wie heißt du?",qk:"ヴィー・ハイスト・ドゥ",qj:"なまえは？",g:"Ich heiße Rin.",k:"イッヒ・ハイセ・リン",j:"りんです",e:"👧"},
+  {q:"Wie alt bist du?",qk:"ヴィー・アルト・ビスト・ドゥ",qj:"なんさい？",g:"Ich bin sechs.",k:"イッヒ・ビン・ゼクス",j:"6さいです",e:"🎂"},
+  {q:"Wie geht's?",qk:"ヴィー・ゲーツ",qj:"げんき？",g:"Gut, danke!",k:"グート、ダンケ",j:"げんき、ありがとう",e:"😊"},
+  {q:"Woher kommst du?",qk:"ヴォーヘア・コムスト・ドゥ",qj:"どこから きたの？",g:"Aus Japan.",k:"アウス・ヤーパン",j:"にほんから",e:"🇯🇵"},
+  {q:"Wo wohnst du?",qk:"ヴォー・ヴォーンスト・ドゥ",qj:"どこに すんでるの？",g:"In Wien.",k:"イン・ヴィーン",j:"ウィーンに",e:"🏙️"},
+  {q:"Was ist das?",qk:"ヴァス・イスト・ダス",qj:"これ なに？",g:"Das ist ein Hund.",k:"ダス・イスト・アイン・フント",j:"いぬだよ",e:"🐶"},
+  {q:"Wer ist das?",qk:"ヴェア・イスト・ダス",qj:"これ だれ？",g:"Das ist meine Mama.",k:"ダス・イスト・マイネ・ママ",j:"わたしの ママ",e:"👩"},
+  {q:"Magst du Eis?",qk:"マークスト・ドゥ・アイス",qj:"アイス すき？",g:"Ja, sehr!",k:"ヤー、ゼーア",j:"うん、だいすき！",e:"🍦"},
+  {q:"Hast du Hunger?",qk:"ハスト・ドゥ・フンガー",qj:"おなか すいた？",g:"Ja, ich habe Hunger.",k:"ヤー、イッヒ・ハーベ・フンガー",j:"うん、すいた",e:"🍞"},
+  {q:"Willst du spielen?",qk:"ヴィルスト・ドゥ・シュピーレン",qj:"あそぶ？",g:"Ja, gerne!",k:"ヤー、ゲルネ",j:"うん、よろこんで！",e:"🎈"},
+  {q:"Was machst du?",qk:"ヴァス・マハスト・ドゥ",qj:"なに してるの？",g:"Ich male.",k:"イッヒ・マーレ",j:"えを かいてる",e:"🎨"},
+  {q:"Was ist deine Lieblingsfarbe?",qk:"ヴァス・イスト・ダイネ・リーブリングスファルベ",qj:"すきな いろは？",g:"Rosa!",k:"ローザ",j:"ピンク！",e:"🌸"},
+  {q:"Hast du ein Haustier?",qk:"ハスト・ドゥ・アイン・ハウスティーア",qj:"ペット いる？",g:"Nein, leider nicht.",k:"ナイン、ライダー・ニヒト",j:"ううん、いないの",e:"🙅"},
+  {q:"Tut es weh?",qk:"トゥート・エス・ヴェー",qj:"いたい？",g:"Ja, ein bisschen.",k:"ヤー、アイン・ビスヒェン",j:"うん、すこし",e:"🤕"},
+  {q:"Wie spät ist es?",qk:"ヴィー・シュペート・イスト・エス",qj:"いま なんじ？",g:"Es ist drei Uhr.",k:"エス・イスト・ドライ・ウーア",j:"3じだよ",e:"🕒"},
+  {q:"Danke schön!",qk:"ダンケ・シェーン",qj:"ありがとう！",g:"Bitte schön!",k:"ビッテ・シェーン",j:"どういたしまして",e:"🤲"},
+].map(p=>({...p,t:"かいわ"}));
+
 const STICKERS = ["🐰","🐶","🐱","🐼","🦊","🐧","🦄","🐬","🐢","🦋","🚃","🚄","🚂","🚌","🎡","🎢","🎠","🍰","🍩","🍭","🍦","🧁","🍓","🌈","⭐","🎀","🎈","🌻","🧸","🎨"];
 const RARE = ["🦖","🐉","🦩","🚀","🛸","🏰","🎆","👑","💎","🦚","🧜‍♀️","🧚","🎪","🦢","🌟"];
 // つづりモード用: 7もじ以上の ことばは 音節（シラブル）で わける
@@ -314,7 +465,12 @@ const SYL = {"Schule":"Schu-le","Lehrerin":"Leh-re-rin","Lehrer":"Leh-rer","Blei
   "schwarz":"sch-warz","sieben":"sie-ben","dreizehn":"drei-zehn","vierzehn":"vier-zehn","fünfzehn":"fünf-zehn","sechzehn":"sech-zehn","siebzehn":"sieb-zehn",
   "achtzehn":"acht-zehn","neunzehn":"neun-zehn","zwanzig":"zwan-zig","Montag":"Mon-tag","Dienstag":"Diens-tag","Mittwoch":"Mitt-woch","Donnerstag":"Don-ners-tag",
   "Freitag":"Frei-tag","Samstag":"Sams-tag","Sonntag":"Sonn-tag","Jänner":"Jän-ner","Februar":"Fe-bru-ar","April":"A-pril","August":"Au-gust","September":"Sep-tem-ber",
-  "Oktober":"Ok-to-ber","November":"No-vem-ber","Dezember":"De-zem-ber","Tschüss":"Tschüss","Servus":"Ser-vus","Danke":"Dan-ke","Bitte":"Bit-te","Hallo":"Hal-lo"};
+  "Oktober":"Ok-to-ber","November":"No-vem-ber","Dezember":"De-zem-ber","Tschüss":"Tschüss","Servus":"Ser-vus","Danke":"Dan-ke","Bitte":"Bit-te","Hallo":"Hal-lo",
+  "Schwester":"Schwes-ter","Bruder":"Bru-der","Familie":"Fa-mi-lie","Fenster":"Fens-ter","Schlüssel":"Schlüs-sel","Küche":"Kü-che","Lampe":"Lam-pe","Regenbogen":"Re-gen-bo-gen",
+  "Regen":"Re-gen","Wolke":"Wol-ke","Sonne":"Son-ne","Jacke":"Ja-cke","Socke":"So-cke","Mütze":"Müt-ze","Blume":"Blu-me","Straßenbahn":"Stra-ßen-bahn","Flugzeug":"Flug-zeug","Fahrrad":"Fahr-rad",
+  "laufen":"lau-fen","essen":"es-sen","trinken":"trin-ken","schlafen":"schla-fen","lesen":"le-sen","malen":"ma-len","singen":"sin-gen","tanzen":"tan-zen","spielen":"spie-len","springen":"sprin-gen",
+  "schwimmen":"schwim-men","lachen":"la-chen","langsam":"lang-sam","einundzwanzig":"ein-und-zwan-zig","zweiundzwanzig":"zwei-und-zwan-zig","dreißig":"drei-ßig","vierzig":"vier-zig",
+  "fünfzig":"fünf-zig","sechzig":"sech-zig","siebzig":"sieb-zig","achtzig":"acht-zig","neunzig":"neun-zig","hundert":"hun-dert"};
 const LEVELS=[
   {id:0,name:"🌱 やさしい",sub:"4たく・カタカナつき",n:4,kana:true,retry:2},
   {id:1,name:"🌿 ふつう",sub:"6たく・カタカナなし",n:6,kana:false,retry:2},
@@ -368,7 +524,7 @@ const $=id=>document.getElementById(id);
 const rnd=n=>Math.floor(Math.random()*n);
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
 const pick=a=>a[rnd(a.length)];
-function show(id){["home","quiz","browse","result","book"].forEach(x=>$(x).classList.toggle("hide",x!==id));}
+function show(id){["home","quiz","browse","result","book"].forEach(x=>$(x).classList.toggle("hide",x!==id)); if(id==="home"){renderProgress();renderThemeFilter();}}
 function confetti(){
   for(let i=0;i<22;i++){const s=document.createElement("span");s.className="conf";
     s.textContent=pick(["🎉","⭐","✨","💛","🌸","🎈"]);s.style.left=rnd(100)+"vw";
@@ -414,6 +570,39 @@ const piecesFor=word=>{ const s=SYL[word]; return (s && s.includes("-")) ? s.spl
 const deHTML=o=>`<div class="de">${o.g}</div>`+(level.kana?`<div class="ka">${o.k}</div>`:"");
 const revealHTML=()=>`<div class="big">${cur.num?cur.j:(cur.e||"")}</div><div><div class="word">${cur.g}</div><div class="kana">${cur.k}</div><div class="kana">${cur.j}</div></div><button class="speak" id="replay2">🔊</button>`;
 
+/* ============ おぼえた メーター ============ */
+const MKEY="deutsch_mastery"; let mastery={}; try{ mastery=JSON.parse(localStorage.getItem(MKEY)||"{}"); }catch(e){}
+const isMastered=o=>(mastery[o.g]||0)>=3;
+let newMastered=0;
+function bump(o,ok){
+  const before=mastery[o.g]||0;
+  mastery[o.g]= ok ? Math.min(3,before+1) : Math.max(0,before-1);
+  if(before<3 && mastery[o.g]>=3) newMastered++;
+  localStorage.setItem(MKEY,JSON.stringify(mastery));
+}
+const ALL_ITEMS=()=>[...WORDS,...NUMBERS,...DAYS,...MONTHS,...PHRASES,...TEACHER,...CONV];
+function renderProgress(){
+  const all=ALL_ITEMS(), n=all.filter(isMastered).length;
+  $("progN").textContent=n; $("progT").textContent=all.length; $("progFill").style.width=(100*n/all.length)+"%";
+}
+// おぼえていない ことばを さきに 出す（おぼえた ことばは たまに）
+function smart(pool,N){
+  const un=shuffle(pool.filter(o=>!isMastered(o))), ma=shuffle(pool.filter(isMastered));
+  const q=un.slice(0,N); if(q.length<N) q.push(...ma.slice(0,N-q.length));
+  return shuffle(q);
+}
+/* ============ テーマ ============ */
+const WORD_THEMES=["あいさつ","どうぶつ","いろ","がっこう","たべもの","かぞく","からだ","ふく","てんき","おうち","しぜん","どうさ","のりもの","はんたい"];
+let tf=localStorage.getItem("deutsch_theme")||"ぜんぶ";
+function byTheme(pool){ if(tf==="ぜんぶ") return pool; const f=pool.filter(x=>x.t===tf); return f.length>=4 ? f : pool; }
+function renderThemeFilter(){
+  const w=$("tfilter"); w.innerHTML="";
+  ["ぜんぶ",...WORD_THEMES].forEach(th=>{const b=document.createElement("button");
+    const items= th==="ぜんぶ" ? WORDS : WORDS.filter(x=>x.t===th); const m=items.filter(isMastered).length;
+    b.innerHTML=`${th}<span class="cnt">${m}/${items.length}</span>`; b.className=th===tf?"on":"";
+    b.onclick=()=>{tf=th;localStorage.setItem("deutsch_theme",th);renderThemeFilter();}; w.appendChild(b);});
+}
+
 /* ============ クイズ ============ */
 let mode=null, queue=[], qi=0, results=[], tries=0, cur=null, timerId=null, timeLeft=0, timeScore=0;
 const CAL=[...NUMBERS,...DAYS,...MONTHS];
@@ -423,13 +612,15 @@ const SENT=PHRASES.filter(p=>p.g.split(" ").length>=3);
 
 function buildQueue(){
   const N=10;
-  if(mode==="listen"||mode==="word") return shuffle(WORDS).slice(0,N);
-  if(mode==="phrase") return shuffle(PHRASES).slice(0,N);
-  if(mode==="calendar") return shuffle(CAL).slice(0,N);
-  if(mode==="article") return shuffle(ART).slice(0,N);
-  if(mode==="spell") return shuffle(SPELL).slice(0,N);
-  if(mode==="sentence") return shuffle(SENT).slice(0,N);
-  if(mode==="time") return shuffle([...WORDS,...CAL]);
+  if(mode==="listen"||mode==="word") return smart(byTheme(WORDS),N);
+  if(mode==="phrase") return smart(PHRASES,N);
+  if(mode==="calendar") return smart(CAL,N);
+  if(mode==="article") return smart(byTheme(ART),N);
+  if(mode==="spell") return smart(byTheme(SPELL),N);
+  if(mode==="sentence") return smart(SENT,N);
+  if(mode==="teacher") return smart(TEACHER,N);
+  if(mode==="conv") return smart(CONV,N);
+  if(mode==="time") return shuffle([...byTheme(WORDS),...(tf==="ぜんぶ"?CAL:[])]);
   return [];
 }
 function distractors(item, pool, n){
@@ -443,10 +634,10 @@ function distractors(item, pool, n){
   if(d.length<n) d.push(...other.slice(0,n-d.length));
   return d;
 }
-function poolFor(){ return mode==="phrase"?PHRASES : (mode==="calendar"||mode==="time")?[...WORDS,...CAL] : WORDS; }
+function poolFor(){ return mode==="phrase"?PHRASES : mode==="teacher"?TEACHER : mode==="conv"?CONV : (mode==="calendar"||mode==="time")?[...WORDS,...CAL] : WORDS; }
 
 function startQuiz(m){
-  mode=m; queue=buildQueue(); qi=0; results=[]; clearInterval(timerId); timerId=null;
+  mode=m; queue=buildQueue(); qi=0; results=[]; newMastered=0; clearInterval(timerId); timerId=null;
   show("quiz");
   if(mode==="time"){ timeLeft=60; timeScore=0; timerId=setInterval(tick,1000); }
   nextQ();
@@ -500,6 +691,19 @@ function nextQ(){
       ch.querySelectorAll(".ch").forEach(b=>b.style.minHeight="64px");
     }
   }
+  else if(mode==="teacher"){
+    $("prompt").textContent="せんせいが いったよ。なにを する？";
+    st.innerHTML=`<button class="speak big" id="replay">🔊</button>`;
+    $("replay").onclick=()=>say(cur.g);
+    addChoices(shuffle([cur,...distractors(cur,pool,3)]), o=>`<div class="em">${o.e}</div><div class="tx" style="font-size:16px">${o.j}</div>`, "", true);
+    setTimeout(()=>say(cur.g),350);
+  }
+  else if(mode==="conv"){
+    $("prompt").textContent="なんて こたえる？";
+    st.innerHTML=`<div><div class="q">${cur.q}</div>`+(level.kana?`<div class="kana">${cur.qk}</div>`:"")+`<div class="qj">${cur.qj}</div></div><button class="speak" id="replay">🔊</button>`;
+    $("replay").onclick=()=>say(cur.q); setTimeout(()=>say(cur.q),300);
+    addChoices(shuffle([cur,...distractors(cur,pool,level.id>=1?3:2)]), o=>`<div class="de" style="font-size:18px">${o.g}</div>`+(level.kana?`<div class="ka">${o.k}</div>`:""), "one");
+  }
   else if(mode==="article"){
     $("prompt").textContent="「かんむり」は どれ？";
     st.innerHTML=`<div class="big">${cur.e}</div><div><div class="noun">___ ${baseWord(cur)}</div><div class="kana">${cur.j}</div></div>`;
@@ -541,7 +745,7 @@ function buildTiles(pieces, tiles, isWord, onDone){
         if(idx>=pieces.length){ say(cur.g); onDone(); correctDone(); } }
       else { b.classList.add("ng"); setTimeout(()=>b.classList.remove("ng"),400); tries++; $("msg").textContent=pick(SOFT); $("msg").className="msg soft";
         if(tries>level.retry){ // のこりを みせる
-          results[qi]=false; tl.querySelectorAll(".tile").forEach(x=>x.classList.add("used"));
+          results[qi]=false; bump(cur,false); tl.querySelectorAll(".tile").forEach(x=>x.classList.add("used"));
           for(let k=idx;k<pieces.length;k++){const s=slots.children[k]; s.textContent=pieces[k]; s.classList.add("done");}
           idx=pieces.length; say(cur.g); onDone();
           $("msg").textContent="こたえは これ！ いっしょに いってみよう"; $("msg").className="msg soft";
@@ -550,12 +754,13 @@ function buildTiles(pieces, tiles, isWord, onDone){
     }; tl.appendChild(b);});
 }
 function correctDone(){
-  results[qi]= tries===0; $("msg").textContent=pick(PRAISE); $("msg").className="msg"; if(tries===0) confetti();
+  results[qi]= tries===0; bump(cur,tries===0); $("msg").textContent=pick(PRAISE); $("msg").className="msg"; if(tries===0) confetti();
   $("qbtns").innerHTML=`<button class="next" id="nx">つぎへ ▶</button>`; $("nx").onclick=()=>{qi++;nextQ();};
 }
 function answer(ok,btn,opts){
   const all=[...$("choices").children];
   if(mode==="time"){ // まちがえても すぐ つぎへ
+    bump(cur,ok);
     if(ok){ timeScore++; btn.classList.add("ok"); say(cur.g); confetti(); }
     else { btn.classList.add("ng"); const idx=opts.findIndex(o=>o.g===cur.g); if(all[idx]) all[idx].classList.add("ok"); }
     all.forEach(b=>b.style.pointerEvents="none"); renderDots();
@@ -563,7 +768,7 @@ function answer(ok,btn,opts){
   }
   if(ok){
     btn.classList.add("ok"); all.forEach(b=>{if(b!==btn)b.classList.add("dim");});
-    results[qi]= tries===0; $("msg").textContent=pick(PRAISE); $("msg").className="msg";
+    results[qi]= tries===0; bump(cur,tries===0); $("msg").textContent=pick(PRAISE); $("msg").className="msg";
     if(tries===0) confetti();
     if(mode!=="listen") setTimeout(()=>say(cur.g),150); else say(cur.g);
     $("stim").innerHTML=revealHTML(); $("replay2").onclick=()=>say(cur.g);
@@ -573,7 +778,7 @@ function answer(ok,btn,opts){
     btn.classList.add("ng"); setTimeout(()=>{btn.classList.remove("ng");btn.classList.add("dim");},400);
     $("msg").textContent=pick(SOFT); $("msg").className="msg soft";
     if(tries>=level.retry){ // こたえを見せる
-      results[qi]=false;
+      results[qi]=false; bump(cur,false);
       const idx = mode==="article" ? opts.findIndex(o=>o.a===cur._art) : opts.findIndex(o=>o.g===cur.g);
       const cb=all[idx]; if(cb){ cb.classList.add("ok"); } all.forEach(b=>{if(b!==cb)b.classList.add("dim");});
       $("msg").textContent="こたえは これ！ いっしょに いってみよう"; $("msg").className="msg soft";
@@ -590,9 +795,11 @@ function giveSticker(){
 }
 function finish(){
   const n=results.filter(Boolean).length;
-  $("resultTitle").textContent="10もん おつかれさま！";
-  $("stars").textContent="⭐".repeat(n)+"☆".repeat(10-n);
-  $("resultText").textContent = n===10 ? "ぜんぶ いっかいで せいかい！ すごい！" : n>=7 ? `いっかいで せいかい ${n}こ！ よく がんばった！` : `${n}こ せいかい。たくさん かんがえたね！`;
+  const T=queue.length;
+  $("resultTitle").textContent=`${T}もん おつかれさま！`;
+  $("stars").textContent="⭐".repeat(n)+"☆".repeat(T-n);
+  $("resultText").textContent = (n===T ? "ぜんぶ いっかいで せいかい！ すごい！" : n>=T*0.7 ? `いっかいで せいかい ${n}こ！ よく がんばった！` : `${n}こ せいかい。たくさん かんがえたね！`)
+    + (newMastered ? ` 🧠 あたらしく おぼえた ことば ${newMastered}こ！` : "");
   giveSticker();
   show("result"); confetti(); setTimeout(confetti,600);
 }
@@ -609,17 +816,17 @@ function finishTime(){
 }
 
 /* ============ カードを みる ============ */
-const THEMES=["あいさつ","どうぶつ","いろ","がっこう","たべもの","かず","ようび","つき","フレーズ"];
+const THEMES=[...WORD_THEMES,"かず","ようび","つき","フレーズ","せんせい","かいわ"];
 let theme="あいさつ";
 function renderBrowse(){
   const t=$("themes");t.innerHTML="";
   THEMES.forEach(th=>{const b=document.createElement("button");b.textContent=th;b.className=th===theme?"on":"";b.onclick=()=>{theme=th;renderBrowse();};t.appendChild(b);});
-  const all=[...WORDS,...NUMBERS,...DAYS,...MONTHS,...PHRASES].filter(x=>x.t===theme);
+  const all=ALL_ITEMS().filter(x=>x.t===theme);
   const d=$("deck");d.innerHTML="";
-  all.forEach(x=>{const c=document.createElement("div");c.className="fc";
+  all.forEach(x=>{const c=document.createElement("div");c.className="fc"+(isMastered(x)?" done":"");
     const am=x.g.match(/^(der|die|das) /); const deCol=am?({der:"#2a6fbf",die:"#c0392b",das:"#1f8a4a"})[am[1]]:"";
-    c.innerHTML=`<div class="em">${x.num?x.j:(x.e||"")}</div><div class="de">${am?`<span style="color:${deCol}">${am[1]}</span> ${baseWord(x)}`:x.g}</div><div class="ka">${x.k}</div><div class="jp">${x.num?"":x.j}</div>`;
-    c.onclick=()=>say(x.g);d.appendChild(c);});
+    c.innerHTML=`<div class="em">${x.num?x.j:(x.e||"")}</div><div class="de">${am?`<span style="color:${deCol}">${am[1]}</span> ${baseWord(x)}`:x.g}</div><div class="ka">${x.k}</div><div class="jp">${x.num?"":(x.q?x.q+" → ":"")+x.j}</div>${isMastered(x)?'<div class="chk">✅ おぼえた</div>':""}`;
+    c.onclick=()=>say(x.q?x.q+" "+x.g:x.g);d.appendChild(c);});
 }
 
 /* ============ イベント ============ */
@@ -627,7 +834,7 @@ document.querySelectorAll(".mode").forEach(m=>m.onclick=()=>{
   const md=m.dataset.mode;
   if(md==="browse"){renderBrowse();show("browse");} else startQuiz(md);
 });
-renderLevels();
+renderLevels(); renderThemeFilter(); renderProgress();
 $("browseBack").onclick=()=>show("home");
 $("onemore").onclick=()=>startQuiz(mode);
 $("toHome").onclick=()=>{clearInterval(timerId);timerId=null;show("home");};
