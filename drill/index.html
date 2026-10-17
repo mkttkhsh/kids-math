@@ -27,6 +27,23 @@
   .lv .ex{font-size:13px;color:#789;margin-top:3px;}
   .lv .best{font-size:12px;color:#d4a017;font-weight:900;margin-top:4px;min-height:14px;}
 
+  /* rank & modes */
+  .rank{margin:0 0 12px;padding:10px 14px;border-radius:14px;background:#f4fff9;border:2px solid #cdeedd;}
+  .rank .rt{font-size:16px;font-weight:900;color:#1f7a5a;} .rank .rt b{font-size:20px;}
+  .pbar{height:12px;border-radius:6px;background:#e3f3ea;overflow:hidden;margin-top:6px;}
+  .pfill{height:100%;width:0;background:linear-gradient(90deg,#f6c343,#5bb98c);border-radius:6px;transition:width .6s;}
+  .rank .rs{font-size:12px;color:#7a9;margin-top:4px;}
+  .modes{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:6px;}
+  .md{border:2px solid #cdeedd;background:#f4fff9;border-radius:14px;padding:9px 12px;cursor:pointer;font-weight:800;font-size:14px;color:#556;min-width:150px;}
+  .md small{display:block;font-size:11px;color:#8a9;font-weight:700;margin-top:2px;}
+  .md.on{background:#1f7a5a;color:#fff;border-color:#1f7a5a;} .md.on small{color:#cdeedd;}
+  .lv.locked{opacity:.45;background:#f5f5f5;border-color:#e3e3e3;} .lv.locked .tt{color:#999;}
+  .lv.clear{border-color:#5bb98c;} .lv.perfect{background:#fffbe6;border-color:#f6c343;}
+  .lv.miss{background:#fff3f3;border-color:#ffb3b3;} .lv.miss .tt{color:#c0392b;}
+  .tools{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px;}
+  .tools a,.tools button{font-size:13px;font-weight:800;border:2px solid #cdeedd;background:#fff;color:#1f7a5a;border-radius:10px;padding:8px 12px;cursor:pointer;text-decoration:none;}
+  .timer{font-size:14px;font-weight:900;color:#9bb;}
+
   /* quiz */
   .qno{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;margin-bottom:6px;}
   .qno .dot{width:14px;height:14px;border-radius:50%;background:#eef1f4;}
@@ -93,12 +110,20 @@
   <!-- HOME -->
   <div class="card" id="home">
     <p class="lead">レベルを えらんでね。10もん やると シールが もらえるよ</p>
+    <div class="rank" id="rank"></div>
+    <div class="sec">むずかしさ</div>
+    <div class="modes" id="modes"></div>
+    <div class="sec">レベル（⭐7こ いじょうで つぎが ひらくよ）</div>
     <div class="levels" id="levels"></div>
+    <div class="tools">
+      <a href="./print.html">🖨 プリントを つくる（がっこうに もっていく）</a>
+      <button id="unlockAll">🔓 ぜんぶ ひらく（おうちのひと用）</button>
+    </div>
   </div>
 
   <!-- QUIZ -->
   <div class="card hide" id="quiz">
-    <div class="lvname" id="lvname"></div>
+    <div class="lvname" id="lvname"></div><div class="timer" id="timer"></div>
     <div class="qno" id="qno"></div>
     <div class="prob" id="prob"></div>
     <div class="hint hide" id="hint"></div>
@@ -160,12 +185,52 @@ const LEVELS=[
 ];
 let level=LEVELS[0];
 const bestKey=L=>"drill_best_"+L.id;
+const bestOf=L=>parseInt(localStorage.getItem(bestKey(L))||"0",10);
+
+/* むずかしさ */
+const MODES=[
+  {id:0,name:"🌱 やさしい",sub:"ヒント いつでも・3かいまで",hintBtn:"always",tries:3},
+  {id:1,name:"🌿 ふつう",sub:"ヒントは まちがえてから・3かいまで",hintBtn:"afterMiss",tries:3},
+  {id:2,name:"🌳 むずかしい",sub:"ヒントなし・2かいまで・タイム・レアシール",hintBtn:"never",tries:2,hard:true},
+];
+let dmode=MODES[parseInt(localStorage.getItem("drill_mode")||"0",10)]||MODES[0];
+function renderModes(){
+  const w=$("modes"); w.innerHTML="";
+  MODES.forEach(M=>{const b=document.createElement("div");b.className="md"+(M===dmode?" on":"");b.innerHTML=`${M.name}<small>${M.sub}</small>`;
+    b.onclick=()=>{dmode=M;localStorage.setItem("drill_mode",M.id);renderModes();};w.appendChild(b);});
+}
+/* ランク */
+const RANKS=[[0,"けいさん みならい 🐣"],[10,"けいさん みならい 🐥"],[25,"けいさん せんしゅ 🏃‍♀️"],[40,"けいさん めいじん 🎯"],[55,"けいさん はかせ 🎓"],[70,"けいさん マスター 👑"],[80,"けいさん レジェンド 🌟"]];
+function renderRank(){
+  const total=LEVELS.reduce((s,L)=>s+bestOf(L),0), max=LEVELS.length*10;
+  let r=RANKS[0], next=null; for(const x of RANKS){ if(total>=x[0]) r=x; else { next=x; break; } }
+  $("rank").innerHTML=`<div class="rt">${r[1]}　<b>⭐ ${total}</b> / ${max}</div><div class="pbar"><div class="pfill" style="width:${100*total/max}%"></div></div><div class="rs">${next?`あと ⭐${next[0]-total}こ で「${next[1]}」`:"さいこうランク！"}</div>`;
+}
+/* 解放 */
+const unlockedAll=()=>localStorage.getItem("drill_unlock_all")==="1";
+const isUnlocked=L=> L.id===0 || unlockedAll() || bestOf(LEVELS[L.id-1])>=7 || (L.id===7 && [2,3,4,5].every(i=>bestOf(LEVELS[i])>=7));
+/* にがて もんだい（まちがえた もんだいを ためて、やりなおす） */
+const MISSKEY="drill_miss";
+const loadMiss=()=>{try{return JSON.parse(localStorage.getItem(MISSKEY)||"[]");}catch(e){return [];}};
+const saveMiss=a=>localStorage.setItem(MISSKEY,JSON.stringify(a.slice(-30)));
+const sameP=(p,q)=>p.a===q.a&&p.b===q.b&&p.op===q.op;
+function addMiss(p){ const a=loadMiss(); if(!a.some(q=>sameP(p,q))) a.push({a:p.a,b:p.b,op:p.op}); saveMiss(a); }
+function removeMiss(p){ saveMiss(loadMiss().filter(q=>!sameP(p,q))); }
+const MISS_LEVEL={id:99,name:"🔁 にがて もんだい",ex:"まちがえた もんだいを もういちど",gen:()=>{ const a=loadMiss(); return a.length? {...pick(a)} : LEVELS[7].gen(); }};
+
 function renderLevels(){
+  renderRank(); renderModes();
   const w=$("levels"); w.innerHTML="";
-  LEVELS.forEach(L=>{const b=document.createElement("div");b.className="lv";
-    const best=localStorage.getItem(bestKey(L));
-    b.innerHTML=`<div class="tt">${L.name}</div><div class="ex">${L.ex}</div><div class="best">${best?`⭐ さいこう ${best}/10`:""}</div>`;
-    b.onclick=()=>startQuiz(L);w.appendChild(b);});
+  LEVELS.forEach(L=>{const b=document.createElement("div");
+    const best=bestOf(L), un=isUnlocked(L);
+    b.className="lv"+(un?"":" locked")+(best>=10?" perfect":best>=7?" clear":"");
+    const badge = !un ? "🔒 まえの レベルで ⭐7こ とろう" : best>=10 ? "🏅 パーフェクト！" : best>=7 ? `✅ クリア（さいこう ${best}/10）` : best ? `⭐ さいこう ${best}/10` : "";
+    b.innerHTML=`<div class="tt">${L.name}</div><div class="ex">${L.ex}</div><div class="best">${badge}</div>`;
+    if(un) b.onclick=()=>startQuiz(L); w.appendChild(b);});
+  const miss=loadMiss();
+  if(miss.length>=3){ const b=document.createElement("div"); b.className="lv miss";
+    b.innerHTML=`<div class="tt">${MISS_LEVEL.name}</div><div class="ex">${MISS_LEVEL.ex}</div><div class="best">いま ${miss.length}もん</div>`;
+    b.onclick=()=>startQuiz(MISS_LEVEL); w.appendChild(b); }
 }
 
 /* ============ ヒント（10のかたまり） ============ */
@@ -225,8 +290,11 @@ function renderBook(){
 
 /* ============ ドリル ============ */
 const N_Q=10;
-let qi=0, results=[], tries=0, cur=null, input="", locked=false, hintUsed=false;
-function startQuiz(L){ level=L; qi=0; results=[]; show("quiz"); $("lvname").textContent=L.name; nextQ(); }
+let qi=0, results=[], tries=0, cur=null, input="", locked=false, hintUsed=false, t0=0, timerId=null;
+function startQuiz(L){ level=L; qi=0; results=[]; show("quiz"); $("lvname").textContent=L.name+"　"+dmode.name;
+  clearInterval(timerId); t0=Date.now(); $("timer").textContent="";
+  if(dmode.hard) timerId=setInterval(()=>{ $("timer").textContent="⏱ "+Math.floor((Date.now()-t0)/1000)+"びょう"; },500);
+  nextQ(); }
 function renderDots(){
   const q=$("qno");q.innerHTML="";
   for(let i=0;i<N_Q;i++){const d=document.createElement("span");d.className="dot"+(i<qi?(results[i]?" ok":" ng"):(i===qi?" now":""));q.appendChild(d);}
@@ -250,8 +318,8 @@ function nextQ(){
   renderDots(); renderProb(); renderPad();
   $("hint").classList.add("hide"); $("hint").innerHTML="";
   $("msg").textContent=""; $("msg").className="msg";
-  $("qbtns").innerHTML=`<button class="hintb" id="hb">💡 ヒント</button>`;
-  $("hb").onclick=showHint;
+  $("qbtns").innerHTML = dmode.hintBtn==="always" ? `<button class="hintb" id="hb">💡 ヒント</button>` : "";
+  if($("hb")) $("hb").onclick=showHint;
 }
 function showHint(){ hintUsed=true; $("hint").innerHTML=hintHTML(cur); $("hint").classList.remove("hide"); }
 function check(){
@@ -262,26 +330,34 @@ function check(){
     results[qi]= tries===0 && !hintUsed;
     $("msg").textContent = tries===0 ? pick(PRAISE) : "できた！ あきらめなかったね！"; $("msg").className="msg";
     if(results[qi]) confetti();
+    if(tries===0) removeMiss(cur); else addMiss(cur);
     $("qbtns").innerHTML=`<button class="next" id="nx">つぎへ ▶</button>`; $("nx").onclick=()=>{qi++;nextQ();};
   } else {
     tries++; renderProb("ng"); input="";
     setTimeout(()=>renderProb(),450);
-    if(tries===1){ $("msg").textContent=pick(SOFT); $("msg").className="msg soft"; }
-    else if(tries===2){ $("msg").textContent="ヒントを みて、もういっかい！"; $("msg").className="msg soft"; showHint(); }
-    else { // 3かいめ: こたえを みせる
-      locked=true; results[qi]=false; input=String(ans); renderProb("ok"); showHint();
+    if(tries<dmode.tries){
+      if(tries===1){ $("msg").textContent=pick(SOFT); $("msg").className="msg soft";
+        if(dmode.hintBtn==="afterMiss" && !$("hb")){ $("qbtns").innerHTML=`<button class="hintb" id="hb">💡 ヒント</button>`; $("hb").onclick=showHint; } }
+      else { $("msg").textContent="ヒントを みて、もういっかい！"; $("msg").className="msg soft"; showHint(); }
+    }
+    else { // さいご: こたえを みせる
+      locked=true; results[qi]=false; addMiss(cur); input=String(ans); renderProb("ok"); showHint();
       $("msg").textContent=`こたえは ${ans}。ヒントの とおりに かんがえてみよう`; $("msg").className="msg soft";
       $("qbtns").innerHTML=`<button class="next" id="nx">つぎへ ▶</button>`; $("nx").onclick=()=>{qi++;nextQ();};
     }
   }
 }
 function finish(){
+  clearInterval(timerId); timerId=null;
   const n=results.filter(Boolean).length;
   $("stars").textContent="⭐".repeat(n)+"☆".repeat(N_Q-n);
   const best=parseInt(localStorage.getItem(bestKey(level))||"0",10);
   const isBest=n>best; if(isBest) localStorage.setItem(bestKey(level),n);
   $("resultText").textContent = (n===N_Q ? "ぜんぶ いっぱつ せいかい！ すごい！" : n>=7 ? `いっぱつ せいかい ${n}こ！ よく がんばった！` : `${n}こ いっぱつ せいかい。たくさん かんがえたね！`) + (isBest&&best>0 ? " 🏆 しんきろく！" : "");
-  const rare = level.id>=5 && n>=8 && Math.random()<0.5;
+  const secs=Math.floor((Date.now()-t0)/1000);
+  if(dmode.hard){ const tk="drill_time_"+level.id; const bt=parseInt(localStorage.getItem(tk)||"0",10); if(n>=7 && (!bt || secs<bt)) localStorage.setItem(tk,secs); $("resultText").textContent += ` ⏱ ${secs}びょう`+(bt&&secs<bt&&n>=7?"（じかんも しんきろく！）":""); }
+  if(level===MISS_LEVEL){ localStorage.removeItem(bestKey(level)); }
+  const rare = (dmode.hard && n>=8 && Math.random()<0.6) || (level.id>=5 && n>=8 && Math.random()<0.3);
   const s=pick(rare?RARE:STICKERS); $("newsticker").textContent=s; saveSticker(s);
   show("result"); confetti(); setTimeout(confetti,600);
 }
@@ -292,6 +368,9 @@ $("onemore").onclick=()=>startQuiz(level);
 $("toHome").onclick=()=>show("home");
 $("bookBtn").onclick=()=>{renderBook();show("book");};
 $("bookBack").onclick=()=>show("home");
+$("unlockAll").onclick=()=>{ const v=unlockedAll()?"0":"1"; localStorage.setItem("drill_unlock_all",v); $("unlockAll").textContent = v==="1" ? "🔒 じゅんばんに もどす（おうちのひと用）" : "🔓 ぜんぶ ひらく（おうちのひと用）"; renderLevels(); };
+if(unlockedAll()) $("unlockAll").textContent="🔒 じゅんばんに もどす（おうちのひと用）";
+$("toHome").onclick=()=>{clearInterval(timerId);show("home");};
 updateBookN();
 </script>
 </body>

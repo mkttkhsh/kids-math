@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>けいさん プリント</title>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:"Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;color:#234;background:#eef3f0;}
+  /* ---- 設定パネル（画面のみ） ---- */
+  .panel{background:#fff;border-bottom:2px solid #cdeedd;padding:12px 16px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:center;font-size:14px;position:sticky;top:0;z-index:5;}
+  .panel .grp{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+  .panel b{color:#1f7a5a;margin-right:4px;}
+  .chip{border:2px solid #cdeedd;background:#f4fff9;border-radius:10px;padding:6px 10px;cursor:pointer;font-weight:800;font-size:13px;color:#456;user-select:none;}
+  .chip.on{background:#1f7a5a;color:#fff;border-color:#1f7a5a;}
+  .panel select,.panel input[type=text]{font-size:14px;padding:6px 8px;border-radius:8px;border:2px solid #cdeedd;}
+  .btn{font-size:15px;font-weight:900;padding:9px 16px;border-radius:12px;border:none;cursor:pointer;background:#5bb98c;color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.14);}
+  .btn.sub{background:#f0a030;} .btn.home{background:#fff;color:#1f7a5a;border:2px solid #cdeedd;box-shadow:none;text-decoration:none;font-size:13px;padding:8px 12px;}
+  .note{width:100%;text-align:center;font-size:12px;color:#789;}
+
+  /* ---- 用紙 ---- */
+  .sheet{width:210mm;min-height:297mm;margin:16px auto;background:#fff;padding:14mm 14mm 12mm;box-shadow:0 4px 18px rgba(0,0,0,.12);position:relative;}
+  .head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #234;padding-bottom:4mm;margin-bottom:6mm;}
+  .head h1{font-size:20pt;margin:0;}
+  .head .sub{font-size:10pt;color:#567;margin-top:2px;}
+  .head .nm{font-size:11pt;line-height:2;}
+  .head .nm span{display:inline-block;border-bottom:1.5px solid #234;min-width:52mm;margin-left:3mm;}
+  .grid{display:grid;gap:5mm 8mm;}
+  .p{font-size:20pt;font-weight:700;display:flex;align-items:center;gap:2mm;white-space:nowrap;}
+  .p .no{font-size:9pt;color:#9ab;font-weight:700;width:7mm;text-align:right;}
+  .p .box{display:inline-block;width:18mm;height:10mm;border:1.5px solid #234;border-radius:2mm;margin-left:1mm;}
+  .p .ansv{display:inline-block;min-width:18mm;color:#c0392b;text-align:center;}
+  .vert{font-size:16pt;font-weight:700;line-height:1.2;display:inline-block;text-align:right;min-width:18mm;}
+  .vert .r{display:block;padding:0 2mm;} .vert .r2{border-bottom:2px solid #234;}
+  .vert .r2 .op{float:left;margin-right:4mm;}
+  .vert .ans{display:block;min-height:8mm;color:#c0392b;}
+  .foot{position:absolute;bottom:8mm;left:14mm;right:14mm;display:flex;justify-content:space-between;font-size:9pt;color:#9ab;}
+  .stars{letter-spacing:2px;}
+  .cut{font-size:9pt;color:#9ab;}
+  @media print{
+    body{background:#fff;} .panel{display:none;}
+    .sheet{margin:0;box-shadow:none;width:auto;min-height:auto;padding:10mm 12mm 0;page-break-after:always;}
+    .foot{position:static;margin-top:10mm;}
+    .sheet:last-child{page-break-after:auto;}
+    @page{size:A4;margin:8mm;}
+  }
+</style>
+</head>
+<body>
+  <div class="panel">
+    <a class="btn home" href="./">← ドリルへ</a>
+    <div class="grp"><b>レベル</b><span id="lvChips"></span></div>
+    <div class="grp"><b>もんだいの かず</b>
+      <select id="count"><option>12</option><option>20</option><option selected>24</option><option>30</option><option>40</option></select></div>
+    <div class="grp"><b>かたち</b>
+      <span class="chip on" data-form="yoko">よこがき 8+5=□</span><span class="chip" data-form="tate">ひっさん（たてがき）</span></div>
+    <div class="grp"><b>れつ</b>
+      <select id="cols"><option>2</option><option selected>3</option><option>4</option></select></div>
+    <div class="grp"><b>なまえ</b><input type="text" id="nm" placeholder="りん" size="8"></div>
+    <div class="grp"><span class="chip on" id="ansChip">こたえの ページも</span><span class="chip" id="deChip">ドイツご（Name / Datum）</span></div>
+    <button class="btn sub" id="regen">🎲 つくりなおす</button>
+    <button class="btn" id="printBtn">🖨 いんさつ</button>
+    <div class="note">iPad: 共有ボタン → プリント。パソコン: Ctrl/⌘+P。「こたえの ページ」は 2まいめに でます。</div>
+  </div>
+
+  <div id="pages"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const rnd=n=>Math.floor(Math.random()*n);
+const rin=(a,b)=>a+rnd(b-a+1);
+const pick=a=>a[rnd(a.length)];
+// ドリル本体と同じ出題ルール
+const LEVELS=[
+  {id:0,name:"10までの たしざん",gen:()=>{const a=rin(1,9),b=rin(1,10-a);return{a,b,op:"+"};}},
+  {id:1,name:"10までの ひきざん",gen:()=>{const a=rin(2,10),b=rin(1,a-1);return{a,b,op:"-"};}},
+  {id:2,name:"くりあがり たしざん",gen:()=>{const a=rin(2,9),b=rin(11-a,9);return{a,b,op:"+"};}},
+  {id:3,name:"くりさがり ひきざん",gen:()=>{const a=rin(11,18),b=rin(a-9,9);return{a,b,op:"-"};}},
+  {id:4,name:"2けた と 1けた（らくらく）",gen:()=>{const t=rin(1,9)*10;if(Math.random()<.5){const o=rin(0,8),b=rin(1,9-o);return{a:t+o,b,op:"+"};}const o=rin(2,9),b=rin(1,o-1);return{a:t+o,b,op:"-"};}},
+  {id:5,name:"2けた と 1けた（くりあがり）",gen:()=>{const t=rin(1,8)*10;if(Math.random()<.5){const o=rin(2,9),b=rin(11-o,9);return{a:t+o,b,op:"+"};}const o=rin(1,8),b=rin(o+1,9);return{a:t+10+o,b,op:"-"};}},
+  {id:6,name:"2けた と 2けた",gen:()=>{if(Math.random()<.5){const a=rin(11,89),b=rin(10,99-a);return{a,b,op:"+"};}const a=rin(21,99),b=rin(10,a-1);return{a,b,op:"-"};}},
+];
+let sel=new Set([2,3]), form="yoko", withAns=true, de=false, probs=[];
+const q=new URLSearchParams(location.search); if(q.get("lv")){ sel=new Set(q.get("lv").split(",").map(Number).filter(n=>LEVELS[n])); }
+
+function renderChips(){
+  const w=$("lvChips"); w.innerHTML="";
+  LEVELS.forEach(L=>{const c=document.createElement("span");c.className="chip"+(sel.has(L.id)?" on":"");c.textContent=L.name;
+    c.onclick=()=>{ if(sel.has(L.id)){ if(sel.size>1) sel.delete(L.id); } else sel.add(L.id); renderChips(); gen(); }; w.appendChild(c);});
+}
+function gen(){
+  const n=parseInt($("count").value,10), ls=[...sel].map(i=>LEVELS[i]);
+  probs=[]; const seen=new Set();
+  let guard=0;
+  while(probs.length<n && guard++<5000){ const p=ls[probs.length%ls.length].gen(); const k=p.a+p.op+p.b; if(seen.has(k)&&guard<3000) continue; seen.add(k); probs.push(p); }
+  // レベルを混ぜる
+  for(let i=probs.length-1;i>0;i--){const j=rnd(i+1);[probs[i],probs[j]]=[probs[j],probs[i]];}
+  render();
+}
+const ansOf=p=>p.op==="+"?p.a+p.b:p.a-p.b;
+const sign=p=>p.op==="+"?"+":"−";
+function head(title){
+  const name=$("nm").value||"";
+  const date=new Date(); const ds=`${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}`;
+  const lv=[...sel].map(i=>LEVELS[i].name).join("・");
+  return `<div class="head"><div><h1>${title}</h1><div class="sub">${lv}</div></div>
+    <div class="nm">${de?"Name":"なまえ"}<span>${name}</span><br>${de?"Datum":"ひづけ"}<span>${name?ds:""}</span></div></div>`;
+}
+function render(){
+  const cols=parseInt($("cols").value,10);
+  let h=`<div class="sheet">${head(de?"Rechenblatt（けいさん プリント）":"けいさん プリント")}<div class="grid" style="grid-template-columns:repeat(${cols},1fr)">`;
+  probs.forEach((p,i)=>{
+    if(form==="yoko") h+=`<div class="p"><span class="no">${i+1}</span>${p.a} ${sign(p)} ${p.b} =<span class="box"></span></div>`;
+    else h+=`<div class="p"><span class="no">${i+1}</span><span class="vert"><span class="r">${p.a}</span><span class="r r2"><span class="op">${sign(p)}</span>${p.b}</span><span class="ans"></span></span></div>`;
+  });
+  h+=`</div><div class="foot"><span>ぜんぶ できたら ⭐ <span class="stars">☆☆☆☆☆</span></span><span>${de?"Gut gemacht!":"よく がんばったね！"}</span></div></div>`;
+  if(withAns){
+    h+=`<div class="sheet">${head("こたえ")}<div class="grid" style="grid-template-columns:repeat(${Math.max(cols,3)},1fr)">`;
+    probs.forEach((p,i)=>{ h+=`<div class="p" style="font-size:14pt"><span class="no">${i+1}</span>${p.a} ${sign(p)} ${p.b} = <span class="ansv">${ansOf(p)}</span></div>`; });
+    h+=`</div><div class="foot"><span class="cut">✂ おうちのひとが もっておく ページ</span><span></span></div></div>`;
+  }
+  $("pages").innerHTML=h;
+}
+document.querySelectorAll("[data-form]").forEach(c=>c.onclick=()=>{ form=c.dataset.form; document.querySelectorAll("[data-form]").forEach(x=>x.classList.toggle("on",x===c)); render(); });
+$("ansChip").onclick=()=>{ withAns=!withAns; $("ansChip").classList.toggle("on",withAns); render(); };
+$("deChip").onclick=()=>{ de=!de; $("deChip").classList.toggle("on",de); render(); };
+$("count").onchange=gen; $("cols").onchange=render; $("nm").oninput=render;
+$("regen").onclick=gen; $("printBtn").onclick=()=>window.print();
+renderChips(); gen();
+</script>
+</body>
+</html>
