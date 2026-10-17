@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="けいさんドリル">
+<title>けいさん ドリル</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:"Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;color:#234;
+    background:linear-gradient(160deg,#e8fff4,#fffbe6 60%,#e9f3ff);min-height:100vh;text-align:center;padding:16px 12px 48px;user-select:none;}
+  h1{font-size:22px;margin:2px 0 12px;color:#1f7a5a;}
+  .top{max-width:640px;margin:0 auto 4px;display:flex;justify-content:space-between;align-items:center;}
+  .pill{display:inline-block;text-decoration:none;font-size:14px;font-weight:800;color:#1f7a5a;background:#fff;border:2px solid #cdeedd;border-radius:12px;padding:7px 13px;cursor:pointer;}
+  .card{background:#fff;border-radius:20px;box-shadow:0 4px 14px rgba(0,0,0,.08);max-width:640px;margin:0 auto;padding:18px 16px 22px;position:relative;}
+  .hide{display:none!important;}
+  .lead{font-size:15px;color:#4a8;margin:0 0 10px;}
+  .sec{font-size:13px;font-weight:900;color:#8bb;margin:10px 0 6px;text-align:left;}
+
+  /* home */
+  .levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;}
+  .lv{border:2px solid #cdeedd;background:#f4fff9;border-radius:16px;padding:14px 10px;cursor:pointer;text-align:left;transition:transform .08s;}
+  .lv:active{transform:scale(.97);}
+  .lv .tt{font-size:17px;font-weight:900;color:#1f7a5a;}
+  .lv .ex{font-size:13px;color:#789;margin-top:3px;}
+  .lv .best{font-size:12px;color:#d4a017;font-weight:900;margin-top:4px;min-height:14px;}
+
+  /* quiz */
+  .qno{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;margin-bottom:6px;}
+  .qno .dot{width:14px;height:14px;border-radius:50%;background:#eef1f4;}
+  .qno .dot.ok{background:#f6c343;} .qno .dot.ng{background:#c9d6e0;} .qno .dot.now{background:#5bb98c;}
+  .lvname{font-size:13px;font-weight:800;color:#9bb;}
+  .prob{font-size:54px;font-weight:900;color:#234;margin:10px 0 4px;letter-spacing:3px;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;}
+  .prob .ans{min-width:96px;height:72px;border-radius:16px;border:3px dashed #5bb98c;background:#f4fff9;display:inline-flex;align-items:center;justify-content:center;color:#1f7a5a;}
+  .prob .ans.ok{border-style:solid;background:#eafff2;} .prob .ans.ng{border-color:#ff8f8f;background:#fff3f3;animation:shake .35s;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:10px auto 0;}
+  .pad button{font-size:28px;font-weight:900;padding:14px 0;border-radius:16px;border:none;background:#fff;color:#234;cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.12);border:2px solid #e3eee8;transition:transform .06s;}
+  .pad button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.12);}
+  .pad .del{background:#f3f5f7;color:#789;font-size:22px;} .pad .okb{background:#5bb98c;color:#fff;border-color:#5bb98c;}
+  .msg{font-size:20px;font-weight:900;color:#1f9d55;min-height:30px;margin-top:10px;}
+  .msg.soft{color:#e07a3a;}
+  .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px;}
+  .btns button{font-size:18px;font-weight:900;padding:13px 22px;border-radius:16px;border:none;cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.14);transition:transform .06s;}
+  .btns button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.14);}
+  .next{background:#5bb98c;color:#fff;} .again{background:#e7edf2;color:#567;} .go{background:#f0a030;color:#fff;} .hintb{background:#fff1b8;color:#8a5a00;}
+
+  /* hint */
+  .hint{margin:10px auto 0;max-width:520px;background:#fffaf0;border:2px dashed #ffd98a;border-radius:16px;padding:12px;}
+  .hint .step{font-size:18px;font-weight:900;color:#8a5a00;margin:4px 0;}
+  .hint .step b{color:#d1751f;font-size:22px;}
+  .frames{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:8px 0;}
+  .frame{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:4px;background:#fff;border:2px solid #cbb;border-radius:8px;}
+  .frame .c{width:22px;height:22px;border-radius:50%;border:1.5px solid #ccc;background:#fff;}
+  .frame .c.a{background:#5aa9f0;border-color:#3b8fd8;} .frame .c.b{background:#f6c343;border-color:#e0a800;}
+  .frame .c.x{background:#fff;border-color:#e46060;position:relative;}
+  .frame .c.x::after{content:"✕";position:absolute;left:0;right:0;top:-3px;color:#e46060;font-size:20px;font-weight:900;line-height:26px;}
+  .blocks{display:flex;gap:16px;justify-content:center;align-items:flex-end;flex-wrap:wrap;margin:8px 0;}
+  .blk{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .blk .lab{font-size:13px;font-weight:900;color:#789;}
+  .bars{display:flex;gap:4px;align-items:flex-end;}
+  .bar{width:12px;height:60px;background:#5aa9f0;border:1.5px solid #3b8fd8;border-radius:3px;}
+  .bar.b{background:#f6c343;border-color:#e0a800;} .bar.x{opacity:.3;}
+  .ones{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-left:6px;}
+  .ones .c{width:12px;height:12px;border-radius:50%;background:#5aa9f0;border:1px solid #3b8fd8;}
+  .ones .c.b{background:#f6c343;border-color:#e0a800;} .ones .c.x{background:#fff;border-color:#e46060;}
+  .sign{font-size:28px;font-weight:900;color:#567;align-self:center;}
+
+  /* result & stickers */
+  .stars{font-size:38px;letter-spacing:3px;margin:6px 0;}
+  .count{font-size:15px;color:#4a8;font-weight:800;margin-top:6px;}
+  .newsticker{font-size:110px;line-height:1.1;animation:pop .7s cubic-bezier(.2,1.6,.4,1) both;}
+  @keyframes pop{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+  .book{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-top:12px;}
+  .book .s{font-size:44px;background:#f4fff9;border:2px dashed #cdeedd;border-radius:14px;padding:6px 0;}
+  .book .s.empty{opacity:.35;font-size:26px;color:#aca;line-height:44px;}
+  .conf{position:fixed;top:-40px;font-size:26px;pointer-events:none;animation:fall linear forwards;z-index:9;}
+  @keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.6}}
+  .prompt{font-size:19px;font-weight:900;color:#457;margin:6px 0;}
+</style>
+</head>
+<body>
+  <div class="top">
+    <a href="../" class="pill">🏠 おうちへ もどる</a>
+    <span class="pill" id="bookBtn">📒 シールちょう <b id="bookN">0</b></span>
+  </div>
+  <h1>✏️ けいさん ドリル</h1>
+
+  <!-- HOME -->
+  <div class="card" id="home">
+    <p class="lead">レベルを えらんでね。10もん やると シールが もらえるよ</p>
+    <div class="levels" id="levels"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="card hide" id="quiz">
+    <div class="lvname" id="lvname"></div>
+    <div class="qno" id="qno"></div>
+    <div class="prob" id="prob"></div>
+    <div class="hint hide" id="hint"></div>
+    <div class="pad" id="pad"></div>
+    <div class="msg" id="msg"></div>
+    <div class="btns" id="qbtns"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="card hide" id="result">
+    <div class="prompt">10もん おつかれさま！</div>
+    <div class="stars" id="stars"></div>
+    <div class="count" id="resultText"></div>
+    <div class="newsticker" id="newsticker"></div>
+    <div class="count">あたらしい シール ゲット！</div>
+    <div class="btns">
+      <button class="go" id="onemore">もう いっかい</button>
+      <button class="again" id="toHome">レベルを えらぶ</button>
+    </div>
+  </div>
+
+  <!-- STICKER BOOK -->
+  <div class="card hide" id="book">
+    <div class="prompt">📒 シールちょう</div>
+    <div class="count" id="bookCount"></div>
+    <div class="book" id="bookGrid"></div>
+    <div class="btns"><button class="again" id="bookBack">← もどる</button></div>
+  </div>
+
+<script>
+/* ============ ユーティリティ ============ */
+const $=id=>document.getElementById(id);
+const rnd=n=>Math.floor(Math.random()*n);
+const rin=(a,b)=>a+rnd(b-a+1); // a〜b
+const pick=a=>a[rnd(a.length)];
+function show(id){["home","quiz","result","book"].forEach(x=>$(x).classList.toggle("hide",x!==id)); if(id==="home") renderLevels();}
+function confetti(){
+  for(let i=0;i<22;i++){const s=document.createElement("span");s.className="conf";
+    s.textContent=pick(["🎉","⭐","✨","💚","🌸","🎈"]);s.style.left=rnd(100)+"vw";
+    s.style.animationDuration=(1.6+Math.random()*1.2)+"s";s.style.animationDelay=(Math.random()*.4)+"s";
+    document.body.appendChild(s);setTimeout(()=>s.remove(),3200);}
+}
+const PRAISE=["せいかい！","すごい！","やったね！","ピンポーン！","そのとおり！","じょうず！","よく かんがえたね！"];
+const SOFT=["おしい！ もういちど かんがえてみよう","うーん、ちがうみたい。もういっかい！","ヒントを みてみる？"];
+const STICKERS=["🐰","🐶","🐱","🐼","🦊","🐧","🦄","🐬","🐢","🦋","🚃","🚄","🚂","🚌","🎡","🎢","🎠","🍰","🍩","🍭","🍦","🧁","🍓","🌈","⭐","🎀","🎈","🌻","🧸","🎨"];
+const RARE=["🦖","🐉","🦩","🚀","🛸","🏰","🎆","👑","💎","🦚","🧜‍♀️","🧚","🎪","🦢","🌟"];
+
+/* ============ レベル ============ */
+// gen(): {a,b,op} を返す。op "+" or "-"。答え = a op b
+const LEVELS=[
+  {id:0,name:"🌱 10までの たしざん",ex:"3 + 4、6 + 2",gen:()=>{const a=rin(1,9),b=rin(1,10-a);return{a,b,op:"+"};}},
+  {id:1,name:"🌱 10までの ひきざん",ex:"7 − 3、10 − 6",gen:()=>{const a=rin(2,10),b=rin(1,a-1);return{a,b,op:"-"};}},
+  {id:2,name:"🌿 くりあがり たしざん",ex:"8 + 5、7 + 6",gen:()=>{const a=rin(2,9),b=rin(11-a,9);return{a,b,op:"+"};}},
+  {id:3,name:"🌿 くりさがり ひきざん",ex:"13 − 7、15 − 8",gen:()=>{const a=rin(11,18),b=rin(a-9,9);return{a,b,op:"-"};}},
+  {id:4,name:"🌳 2けた と 1けた（らくらく）",ex:"23 + 4、47 − 5",gen:()=>{const t=rin(1,9)*10;if(Math.random()<.5){const o=rin(0,8),b=rin(1,9-o);return{a:t+o,b,op:"+"};}const o=rin(2,9),b=rin(1,o-1);return{a:t+o,b,op:"-"};}},
+  {id:5,name:"🌳 2けた と 1けた（くりあがり）",ex:"27 + 5、43 − 7",gen:()=>{const t=rin(1,8)*10;if(Math.random()<.5){const o=rin(2,9),b=rin(11-o,9);return{a:t+o,b,op:"+"};}const o=rin(1,8),b=rin(o+1,9);return{a:t+10+o,b,op:"-"};}},
+  {id:6,name:"🏆 2けた と 2けた",ex:"34 + 28、62 − 35",gen:()=>{if(Math.random()<.5){const a=rin(11,89),b=rin(10,99-a);return{a,b,op:"+"};}const a=rin(21,99),b=rin(10,a-1);return{a,b,op:"-"};}},
+  {id:7,name:"🎲 ミックス",ex:"くりあがり・くりさがり いろいろ",gen:()=>pick([LEVELS[2],LEVELS[3],LEVELS[4],LEVELS[5]]).gen()},
+];
+let level=LEVELS[0];
+const bestKey=L=>"drill_best_"+L.id;
+function renderLevels(){
+  const w=$("levels"); w.innerHTML="";
+  LEVELS.forEach(L=>{const b=document.createElement("div");b.className="lv";
+    const best=localStorage.getItem(bestKey(L));
+    b.innerHTML=`<div class="tt">${L.name}</div><div class="ex">${L.ex}</div><div class="best">${best?`⭐ さいこう ${best}/10`:""}</div>`;
+    b.onclick=()=>startQuiz(L);w.appendChild(b);});
+}
+
+/* ============ ヒント（10のかたまり） ============ */
+const frame=(fill,cls2=0,cross=0)=>{ // 10マス: fill個(青) + cls2個(黄) 、うしろから cross個 ✕
+  let h='<div class="frame">';
+  for(let i=0;i<10;i++){ let c=""; if(i<fill) c="a"; else if(i<fill+cls2) c="b"; if(i>=fill+cls2-cross && i<fill+cls2) c="x"; h+=`<div class="c ${c}"></div>`; }
+  return h+'</div>';
+};
+function framesOf(n,cls="a"){ // n を 10マスで表す
+  let h=""; let r=n; while(r>0){ const f=Math.min(10,r); h+= cls==="a"?frame(f):frame(0,f); r-=f; } return h;
+}
+function blocksOf(n,cls="a",lab=""){ // 2けた: 10のぼう + 1のつぶ
+  const t=Math.floor(n/10), o=n%10;
+  let h=`<div class="blk"><div class="bars">`; for(let i=0;i<t;i++) h+=`<div class="bar ${cls==="b"?"b":""}"></div>`;
+  h+=`<div class="ones">`; for(let i=0;i<o;i++) h+=`<div class="c ${cls==="b"?"b":""}"></div>`; h+=`</div></div><div class="lab">${lab||n}</div></div>`; return h;
+}
+function hintHTML(p){
+  const {a,b,op}=p, ans=op==="+"?a+b:a-b;
+  if(a<=10 && b<=10 && op==="+"){
+    if(a+b<=10) return `<div class="frames">${frame(a,b)}</div><div class="step">あお ${a}こ と きいろ ${b}こ で <b>${ans}</b></div>`;
+    const need=10-a; return `<div class="frames">${frame(a,need)}${frame(0,b-need)}</div><div class="step">${a} に ${need} たすと <b>10</b></div><div class="step">10 と のこり ${b-need} で <b>${ans}</b></div>`;
+  }
+  if(a<=10 && op==="-") return `<div class="frames">${frame(a,0,b)}</div><div class="step">${a} こ から ${b} こ ✕ すると <b>${ans}</b></div>`;
+  if(a<=18 && op==="-"){ // くりさがり: 10 から ひく
+    const o=a-10; return `<div class="frames">${frame(10,0,b)}${frame(o)}</div><div class="step">10 から ${b} ひくと <b>${10-b}</b></div><div class="step">${10-b} と ${o} で <b>${ans}</b></div>`;
+  }
+  // 2けた
+  if(op==="+"){
+    const o=a%10, carry=(o+b%10)>=10;
+    let s=`<div class="blocks">${blocksOf(a)}<div class="sign">+</div>${blocksOf(b,"b")}<div class="sign">=</div>${blocksOf(ans,"a")}</div>`;
+    if(b<10){ s+= carry ? `<div class="step">${a} に ${10-o} たすと <b>${a+10-o}</b></div><div class="step">${a+10-o} と のこり ${b-(10-o)} で <b>${ans}</b></div>` : `<div class="step">いちのくらい ${o}+${b}=<b>${o+b}</b>、じゅうのくらいは そのまま → <b>${ans}</b></div>`; }
+    else { s+= `<div class="step">じゅうのくらい ${Math.floor(a/10)*10}+${Math.floor(b/10)*10}=<b>${Math.floor(a/10)*10+Math.floor(b/10)*10}</b></div><div class="step">いちのくらい ${o}+${b%10}=<b>${o+b%10}</b>${carry?"（10こ あつまったら ぼう 1ぽん！）":""}</div><div class="step">あわせて <b>${ans}</b></div>`; }
+    return s;
+  }
+  // 2けた ひきざん
+  const o=a%10, borrow=o<b%10;
+  let s=`<div class="blocks">${blocksOf(a)}<div class="sign">−</div>${blocksOf(b,"b")}<div class="sign">=</div>${blocksOf(ans)}</div>`;
+  if(b<10){ s+= borrow ? `<div class="step">${a} から ${o} ひくと <b>${a-o}</b>（ちょうど）</div><div class="step">${a-o} から のこり ${b-o} ひくと <b>${ans}</b>（ぼう 1ぽん くずすよ）</div>` : `<div class="step">いちのくらい ${o}−${b}=<b>${o-b}</b>、じゅうのくらいは そのまま → <b>${ans}</b></div>`; }
+  else { s+= borrow ? `<div class="step">${a} − ${Math.floor(b/10)*10} = <b>${a-Math.floor(b/10)*10}</b>（ぼうを ひく）</div><div class="step">${a-Math.floor(b/10)*10} − ${b%10} = <b>${ans}</b>（ぼう 1ぽん くずすよ）</div>` : `<div class="step">じゅうのくらい ${Math.floor(a/10)*10}−${Math.floor(b/10)*10}=<b>${(Math.floor(a/10)-Math.floor(b/10))*10}</b></div><div class="step">いちのくらい ${o}−${b%10}=<b>${o-b%10}</b> → あわせて <b>${ans}</b></div>`; }
+  return s;
+}
+
+/* ============ シール ============ */
+const KEY="drill_stickers";
+const loadStickers=()=>{try{return JSON.parse(localStorage.getItem(KEY)||"[]");}catch(e){return [];}};
+function saveSticker(e){const a=loadStickers();a.push({e,d:new Date().toISOString().slice(0,10)});localStorage.setItem(KEY,JSON.stringify(a));updateBookN();}
+function updateBookN(){$("bookN").textContent=loadStickers().length;}
+function renderBook(){
+  const a=loadStickers();
+  $("bookCount").textContent = a.length ? `シール ${a.length}まい あつまったよ！` : "まだ シールが ないよ。10もん やって もらおう！";
+  const g=$("bookGrid");g.innerHTML="";
+  const slots=Math.max(12,Math.ceil(a.length/6)*6);
+  for(let i=0;i<slots;i++){const d=document.createElement("div");
+    if(a[i]){d.className="s";d.textContent=a[i].e;d.title=a[i].d;}else{d.className="s empty";d.textContent="・";}
+    g.appendChild(d);}
+}
+
+/* ============ ドリル ============ */
+const N_Q=10;
+let qi=0, results=[], tries=0, cur=null, input="", locked=false, hintUsed=false;
+function startQuiz(L){ level=L; qi=0; results=[]; show("quiz"); $("lvname").textContent=L.name; nextQ(); }
+function renderDots(){
+  const q=$("qno");q.innerHTML="";
+  for(let i=0;i<N_Q;i++){const d=document.createElement("span");d.className="dot"+(i<qi?(results[i]?" ok":" ng"):(i===qi?" now":""));q.appendChild(d);}
+}
+function renderProb(cls=""){
+  const shown = input==="" ? "?" : input;
+  $("prob").innerHTML=`<span>${cur.a}</span><span>${cur.op==="+"?"+":"−"}</span><span>${cur.b}</span><span>=</span><span class="ans ${cls}" id="ans">${shown}</span>`;
+}
+function renderPad(){
+  const p=$("pad"); p.innerHTML="";
+  [7,8,9,4,5,6,1,2,3].forEach(n=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>key(String(n));p.appendChild(b);});
+  const del=document.createElement("button");del.className="del";del.textContent="⌫";del.onclick=()=>{if(locked)return;input=input.slice(0,-1);renderProb();};p.appendChild(del);
+  const z=document.createElement("button");z.textContent="0";z.onclick=()=>key("0");p.appendChild(z);
+  const ok=document.createElement("button");ok.className="okb";ok.textContent="OK";ok.onclick=check;p.appendChild(ok);
+}
+function key(d){ if(locked) return; if(input.length>=3) return; if(input==="0") input=""; input+=d; renderProb(); }
+function nextQ(){
+  if(qi>=N_Q) return finish();
+  let p; do{ p=level.gen(); }while(cur && p.a===cur.a && p.b===cur.b && p.op===cur.op);
+  cur=p; tries=0; input=""; locked=false; hintUsed=false;
+  renderDots(); renderProb(); renderPad();
+  $("hint").classList.add("hide"); $("hint").innerHTML="";
+  $("msg").textContent=""; $("msg").className="msg";
+  $("qbtns").innerHTML=`<button class="hintb" id="hb">💡 ヒント</button>`;
+  $("hb").onclick=showHint;
+}
+function showHint(){ hintUsed=true; $("hint").innerHTML=hintHTML(cur); $("hint").classList.remove("hide"); }
+function check(){
+  if(locked || input==="") return;
+  const ans = cur.op==="+" ? cur.a+cur.b : cur.a-cur.b;
+  if(parseInt(input,10)===ans){
+    locked=true; renderProb("ok");
+    results[qi]= tries===0 && !hintUsed;
+    $("msg").textContent = tries===0 ? pick(PRAISE) : "できた！ あきらめなかったね！"; $("msg").className="msg";
+    if(results[qi]) confetti();
+    $("qbtns").innerHTML=`<button class="next" id="nx">つぎへ ▶</button>`; $("nx").onclick=()=>{qi++;nextQ();};
+  } else {
+    tries++; renderProb("ng"); input="";
+    setTimeout(()=>renderProb(),450);
+    if(tries===1){ $("msg").textContent=pick(SOFT); $("msg").className="msg soft"; }
+    else if(tries===2){ $("msg").textContent="ヒントを みて、もういっかい！"; $("msg").className="msg soft"; showHint(); }
+    else { // 3かいめ: こたえを みせる
+      locked=true; results[qi]=false; input=String(ans); renderProb("ok"); showHint();
+      $("msg").textContent=`こたえは ${ans}。ヒントの とおりに かんがえてみよう`; $("msg").className="msg soft";
+      $("qbtns").innerHTML=`<button class="next" id="nx">つぎへ ▶</button>`; $("nx").onclick=()=>{qi++;nextQ();};
+    }
+  }
+}
+function finish(){
+  const n=results.filter(Boolean).length;
+  $("stars").textContent="⭐".repeat(n)+"☆".repeat(N_Q-n);
+  const best=parseInt(localStorage.getItem(bestKey(level))||"0",10);
+  const isBest=n>best; if(isBest) localStorage.setItem(bestKey(level),n);
+  $("resultText").textContent = (n===N_Q ? "ぜんぶ いっぱつ せいかい！ すごい！" : n>=7 ? `いっぱつ せいかい ${n}こ！ よく がんばった！` : `${n}こ いっぱつ せいかい。たくさん かんがえたね！`) + (isBest&&best>0 ? " 🏆 しんきろく！" : "");
+  const rare = level.id>=5 && n>=8 && Math.random()<0.5;
+  const s=pick(rare?RARE:STICKERS); $("newsticker").textContent=s; saveSticker(s);
+  show("result"); confetti(); setTimeout(confetti,600);
+}
+
+/* ============ イベント ============ */
+renderLevels();
+$("onemore").onclick=()=>startQuiz(level);
+$("toHome").onclick=()=>show("home");
+$("bookBtn").onclick=()=>{renderBook();show("book");};
+$("bookBack").onclick=()=>show("home");
+updateBookN();
+</script>
+</body>
+</html>
