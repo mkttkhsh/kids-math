@@ -13,8 +13,12 @@
     text-align:center;padding:34px 16px 60px;user-select:none;}
   h1{font-size:28px;color:#1f7a5a;margin:0 0 4px;}
   .lead{color:#4a6;font-size:15px;margin:0 0 28px;}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;max-width:760px;margin:0 auto;}
-  a.card{display:block;text-decoration:none;background:#fff;border-radius:22px;padding:26px 20px;
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+  .land{max-width:760px;margin:0 auto 22px;padding:14px 14px 16px;border-radius:24px;background:rgba(255,255,255,.55);text-align:left;}
+  .land h2{font-size:19px;margin:0 0 10px 4px;}
+  .land.math h2{color:#1f7a5a;} .land.kokugo h2{color:#d9486b;} .land.world h2{color:#6a3fc9;}
+  .land.math .card .title{color:#1f7a5a;} .land.kokugo .card .title{color:#d9486b;} .land.world .card .title{color:#6a3fc9;}
+  a.card{display:block;text-decoration:none;background:#fff;border-radius:22px;padding:20px 16px;text-align:center;
     box-shadow:0 4px 14px rgba(0,0,0,.08);transition:transform .1s, box-shadow .1s;color:#234;}
   a.card:active{transform:translateY(3px);box-shadow:0 2px 6px rgba(0,0,0,.1);}
   .card .emoji{font-size:52px;line-height:1;}
@@ -27,47 +31,59 @@
   <h1>🎒 あそんで まなぼう</h1>
   <p class="lead">すきな あそびを えらんでね</p>
 
-  <div class="grid">
-    <!-- ▼▼▼ アプリを増やすときは、このブロックをコピーして folder 名とタイトルを変えるだけ ▼▼▼ -->
-    <a class="card" href="./kazu-no-michi/">
-      <div class="emoji">🐇</div>
-      <div class="title">かずの みち</div>
-      <div class="desc">数直線 ＋ 10のかたまり（くらい）</div>
-    </a>
-    <!-- ▲▲▲ ここまでが1枚のカード ▲▲▲ -->
+  <!-- ▼ ランド（グループ）ごとに カードを ならべる。アプリを増やすときは カードを1枚コピー ▼ -->
+  <section class="land math">
+    <h2>🧮 さんすう ランド</h2>
+    <div class="grid">
+      <a class="card" href="./kazu-no-michi/">
+        <div class="emoji">🐇</div>
+        <div class="title">かずの みち</div>
+        <div class="desc">数直線 ＋ 10のかたまり（くらい）</div>
+      </a>
+      <a class="card" href="./bunshoudai/">
+        <div class="emoji">📖</div>
+        <div class="title">おはなし さんすう</div>
+        <div class="desc">文章題 40問を 3ステップで（＋か−か）</div>
+      </a>
+      <a class="card" href="./drill/">
+        <div class="emoji">✏️</div>
+        <div class="title">けいさん ドリル</div>
+        <div class="desc">たしざん・ひきざん 8レベル（10のかたまりヒント）</div>
+      </a>
+      <a class="card" href="./drill/print.html">
+        <div class="emoji">🖨</div>
+        <div class="title">けいさん プリント</div>
+        <div class="desc">がっこうに もっていく A4プリント</div>
+      </a>
+    </div>
+  </section>
 
-    <a class="card" href="./bunshoudai/">
-      <div class="emoji">📖</div>
-      <div class="title">おはなし さんすう</div>
-      <div class="desc">文章題を 3ステップで（＋か−か）</div>
-    </a>
+  <section class="land kokugo">
+    <h2>📖 こくご パーク</h2>
+    <div class="grid">
+      <a class="card" href="./kokugo/">
+        <div class="emoji">🔤</div>
+        <div class="title">こくご パーク</div>
+        <div class="desc">1ねんせいの かんじ 80じ・カタカナ・はんたい・は を に・ぶんづくり</div>
+      </a>
+    </div>
+  </section>
 
-    <a class="card" href="./drill/">
-      <div class="emoji">✏️</div>
-      <div class="title">けいさん ドリル</div>
-      <div class="desc">たしざん・ひきざん 8レベル（10のかたまりヒント）</div>
-    </a>
-
-    <a class="card" href="./deutsch/">
-      <div class="emoji">🇦🇹</div>
-      <div class="title">ドイツご あそび</div>
-      <div class="desc">きいて・みて・がっこうの ことば</div>
-    </a>
-
-    <a class="card" href="./gakufu/">
-      <div class="emoji">🎼</div>
-      <div class="title">おんぷ あそび</div>
-      <div class="desc">ごせんふを よむ・かく・ひく</div>
-    </a>
-
-    <!-- 例：新しいアプリを足すとき
-    <a class="card" href="./tokei/">
-      <div class="emoji">🕐</div>
-      <div class="title">とけい あそび</div>
-      <div class="desc">なんじ かな？</div>
-    </a>
-    -->
-  </div>
+  <section class="land world">
+    <h2>🌍 ことば と おんがく</h2>
+    <div class="grid">
+      <a class="card" href="./deutsch/">
+        <div class="emoji">🇦🇹</div>
+        <div class="title">ドイツご あそび</div>
+        <div class="desc">きいて・みて・がっこうの ことば</div>
+      </a>
+      <a class="card" href="./gakufu/">
+        <div class="emoji">🎼</div>
+        <div class="title">おんぷ あそび</div>
+        <div class="desc">ごせんふを よむ・かく・ひく</div>
+      </a>
+    </div>
+  </section>
 
   <p class="foot">© あそんでまなぼう</p>
 </body>
